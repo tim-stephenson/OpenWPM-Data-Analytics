@@ -15,7 +15,7 @@ parentDirectory
 
 With given `enviroment.yaml` file, run:
 ```
-conda env create -file environment.yaml
+conda env create --force -file environment.yaml
 ```
 which creates the enviroment, you can specify where you want the enviroment stored
 
