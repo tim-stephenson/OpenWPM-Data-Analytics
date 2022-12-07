@@ -44,6 +44,7 @@ def Dynamic(con : sqlite3.Connection) -> Dict[str, List[Identifier] ]:
 def Analyze(df : pd.DataFrame, results : Dict[str, List[Identifier] ], id : Identifier ) -> None:
     if Canvas(df):
         results["Canvas"].append(id)
+        print(f"Found: {id}")
        
 
 
@@ -54,22 +55,25 @@ def Canvas(df :  pd.DataFrame) -> bool:
     charecters = set()
     Extraction = False
     for row in df.itertuples():
-        match row.symbol:
-            case 'HTMLCanvasElement.height':
-                if row.operation == 'set' and row.value and float(row.value) >= 16:
-                    heightRec = True
-            case 'HTMLCanvasElement.width':
-                if row.operation == 'set' and row.value and float(row.value) >= 16:
-                    widthRec = True
-            case 'CanvasRenderingContext2D.fillText':
-                args = ast.literal_eval(row.arguments)
-                for char in args[0]:
-                    charecters.add(char)
-            case 'CanvasRenderingContext2D.fillStyle':
-                if row.operation == 'set' and row.value:
-                    colors.add(row.value)
-            case 'HTMLCanvasElement.toDataURL':
-                Extraction = True
-            case 'CanvasRenderingContext2D.getImageData':
-                Extraction = True
+        try:
+            match row.symbol:
+                case 'HTMLCanvasElement.height':
+                    if row.operation == 'set' and row.value and float(row.value) >= 16:
+                        heightRec = True
+                case 'HTMLCanvasElement.width':
+                    if row.operation == 'set' and row.value and float(row.value) >= 16:
+                        widthRec = True
+                case 'CanvasRenderingContext2D.fillText':
+                    args = ast.literal_eval(row.arguments)
+                    for char in args[0]:
+                        charecters.add(char)
+                case 'CanvasRenderingContext2D.fillStyle':
+                    if row.operation == 'set' and row.value:
+                        colors.add(row.value)
+                case 'HTMLCanvasElement.toDataURL':
+                    Extraction = True
+                case 'CanvasRenderingContext2D.getImageData':
+                    Extraction = True
+        except Exception as e:
+            print(f"Found Exception {e}")
     return heightRec and widthRec and ( len(colors) > 2 or len(charecters) > 10) and Extraction
