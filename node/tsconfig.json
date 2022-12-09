@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+      "outDir": "build",
+      "module": "node16",
+      "moduleResolution": "node16"
+    },
+    "extends": "@tsconfig/node16/tsconfig.json",
+
+}

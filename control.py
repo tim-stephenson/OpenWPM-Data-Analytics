@@ -7,7 +7,7 @@ import json
 from main.functions.runHealth import runHealth
 from main.functions.dynamic_analysis import Dynamic
 
-path : Path = Path('/home/ndanner_plp/OpenWPM/crawl-data/datadir2000')
+path : Path = Path('/home/ndanner_plp/OpenWPM/crawl-data/datadir8000')
 con : sqlite3.Connection = sqlite3.connect( str(path.joinpath("crawl-data.sqlite")) )
 db = plyvel.DB( str(path.joinpath("leveldb")) )
 
