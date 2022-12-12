@@ -38,7 +38,9 @@ def Dynamic(con : sqlite3.Connection) -> Dict[str, List[Identifier] ]:
         if( previous != (row["visit_id"], row["script_url"]) ):
             Analyze( pd.DataFrame(lst, columns=cols), results, previous )
             lst = []
+            previous = (row["visit_id"], row["script_url"]) 
         lst.append(row)
+    return results
 
 
 def Analyze(df : pd.DataFrame, results : Dict[str, List[Identifier] ], id : Identifier ) -> None:

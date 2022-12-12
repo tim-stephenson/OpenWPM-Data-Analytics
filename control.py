@@ -6,8 +6,14 @@ import re
 import json
 from main.functions.runHealth import runHealth
 from main.functions.dynamic_analysis import Dynamic
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("path", help="path of datadir directory")
+args = parser.parse_args()
 
-path : Path = Path('/home/ndanner_plp/OpenWPM/crawl-data/datadir8000')
+
+path : Path = Path(args.path)
+
 con : sqlite3.Connection = sqlite3.connect( str(path.joinpath("crawl-data.sqlite")) )
 db = plyvel.DB( str(path.joinpath("leveldb")) )
 
@@ -17,6 +23,6 @@ print(f"total visits: {n}, failed/incomplete visits: {f}. Success percentage: {r
 results = Dynamic(con)
 print( json.dumps( results, indent= 4 ) )
 
-file1 = open("MyFile1.txt","a")
-with open(path.joinpath("results.json"),"a") as fileObj:
+
+with open(path.joinpath("results.json"),"w") as fileObj:
     fileObj.write( json.dumps( results, indent= 4 )  )
