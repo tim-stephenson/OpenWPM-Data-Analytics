@@ -1,10 +1,13 @@
 from abc import ABC, abstractmethod
 import sqlite3
 import logging
-from typing import Dict, List, Tuple
+from typing import Dict, Literal, Set, Tuple, Union
 
 # (visit_id, script_url)
 Identifier = Tuple[str,str]
+
+
+FingerprintingMethods = ["Canvas"]
 
 class Analysis(ABC):
     """
@@ -17,8 +20,16 @@ class Analysis(ABC):
         pass
 
     @abstractmethod
-    def run(self) -> Dict[str, List[Identifier] ]:
+    def total_identifiers(self) -> int:
+        """return total number of identifiers (visit_id,script_url) the analysis is being run over"""
+        pass
+
+    @abstractmethod
+    def run(self) -> Dict[str, Set[Identifier] ]:
         """run analysis"""
         pass
+
+
+
 
 
