@@ -5,10 +5,14 @@ import pandas as pd
 
 from main.functions.analysis import Analysis, Identifier
 from main.functions.dynamicAnalysis.canvas import Canvas
+from main.functions.dynamicAnalysis.webrtc import WebRTC
+from main.functions.dynamicAnalysis.canvas_font import CanvasFont
 
 
 methods : Dict[str, Callable[[pd.DataFrame, logging.Logger], bool]] = {
-    "Canvas" : Canvas
+    "Canvas" : Canvas,
+    "WebRTC" : WebRTC,
+    "CanvasFont" : CanvasFont
 }
 
 class DynamicAnalysis(Analysis):
@@ -32,11 +36,6 @@ class DynamicAnalysis(Analysis):
         return n
 
     def run(self) -> Dict[str, Set[Identifier] ]:
-        numEntries : sqlite3.Cursor = self.con.cursor().execute(
-            """SELECT COUNT(visit_id)
-            FROM javascript"""
-            )
-        n : int = numEntries.fetchone()[0]
         ordered : sqlite3.Cursor = self.con.cursor().execute(
             """SELECT * 
             FROM javascript 
@@ -62,8 +61,6 @@ class DynamicAnalysis(Analysis):
                 previous = id
             lst.append(row)
         return results
-
-
 
     def _Analyze(self,df : pd.DataFrame ) -> List[str]:
         lst : List[str] = []

@@ -7,6 +7,8 @@ dependencies:
   - _openmp_mutex=5.1
   - asttokens=2.0.5
   - backcall=0.2.0
+  - backports=1.0
+  - backports.functools_lru_cache=1.6.4
   - blas=1.0
   - bottleneck=1.3.5
   - brotlipy=0.7.0

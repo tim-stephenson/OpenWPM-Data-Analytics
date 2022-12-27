@@ -3,14 +3,18 @@ import functools
 import logging
 import sqlite3
 from typing import Callable, Dict, List, Set
+
 from main.functions.analysis import Analysis, Identifier
 from main.functions.staticAnalysis.canvas import Canvas
+from main.functions.staticAnalysis.webrtc import WebRTC
+from main.functions.staticAnalysis.canvas_font import CanvasFont
 
 
 methods : Dict[str, Callable[[str, logging.Logger], bool] ] = {
-    "Canvas" : Canvas
+    "Canvas" : Canvas,
+    "WebRTC" : WebRTC,
+    "CanvasFont" : CanvasFont
 }
-
 
 class StaticAnalysis(Analysis):
 
@@ -34,14 +38,6 @@ class StaticAnalysis(Analysis):
         return n
     
     def run(self) -> Dict[str, Set[Identifier] ]:
-        self.count_unique = 0
-        
-        numEntries : sqlite3.Cursor = self.con.cursor().execute("""
-            SELECT COUNT(visit_id)
-            FROM http_responses 
-            WHERE content_hash <> "" 
-        """)
-        n : int = numEntries.fetchone()[0]
         responses : sqlite3.Cursor = self.con.cursor().execute(
             """SELECT id, visit_id, headers, url, content_hash
             FROM http_responses 
@@ -56,37 +52,13 @@ class StaticAnalysis(Analysis):
             for fingerprintingMethod in script_analyze_results:
                 self.logger.info(f"{id} using {fingerprintingMethod}")
                 results[fingerprintingMethod].add(id)
-    
-        self.logger.info(f"unique: {self.count_unique}, n : {n}")
         return results
 
     @functools.cache
     def _Analyze(self,content_hash : bytes) -> List[str]:
-        self.count_unique += 1
         code : str = str( self.db.get(content_hash) ,encoding="utf-8", errors='ignore')
         toReturn : List[str] = []
         for k, v in methods.items():
             if(v(code,self.logger)):
                 toReturn.append(k)
         return toReturn
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"""
-    # build
-    subprocess.run(["sh", "node/run.sh", "npm run build"])
-    completedProcess : subprocess.CompletedProcess = subprocess.run(["sh", "node/run.sh", f"npm run execute \"{code}\""])
-
-"""
