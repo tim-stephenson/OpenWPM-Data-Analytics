@@ -1,3 +1,3 @@
 #!/bin/sh
 
-conda env create --force --file environment.yaml
+micromamba create -f environment.yaml
