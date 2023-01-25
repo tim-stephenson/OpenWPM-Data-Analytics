@@ -1,9 +1,10 @@
-#!/bin/sh
-if [ "$#" -eq 1 ]
-then
+#!/bin/bash
+
+if [ "$#" -ne 1 ]; then
+    echo "Requires one arguement: datadir path"
+    exit 1
+fi
+
+eval "$(micromamba shell hook --shell=bash)"
 micromamba activate openwpmdata
 python control.py $1
-else
-echo "Requires one arguement: datadir path"
-exit 1
-fi
