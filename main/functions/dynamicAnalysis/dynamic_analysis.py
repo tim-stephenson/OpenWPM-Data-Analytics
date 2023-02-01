@@ -1,8 +1,6 @@
 import logging
 import sqlite3
-from typing import Dict, List, Set, Union
-
-import pandas as pd
+from typing import Any, Dict, List, Set, Union
 
 from main.functions.analysis import Analysis, Identifier
 from main.functions.dynamicAnalysis.canvas import Canvas
@@ -15,7 +13,7 @@ from main.functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisA
 
 class DynamicAnalysis(Analysis):
 
-    def __init__(self, con : sqlite3.Connection, db : any, logger : logging.Logger) -> None:
+    def __init__(self, con : sqlite3.Connection, db : Any, logger : logging.Logger) -> None:
         self.con = con
         self.logger = logger
         self.analyzers : List[DynamicAnalysisABC] = [Canvas(self.logger), WebRTC(self.logger), CanvasFont(self.logger)]
@@ -40,7 +38,8 @@ class DynamicAnalysis(Analysis):
             FROM javascript 
             ORDER BY visit_id, script_url"""
             )
-        ordered.row_factory = sqlite3.Row
+            
+        ordered.row_factory = sqlite3.Row  # type: ignore
 
         results : Dict[str, Set[Identifier] ] = { str(analyzer) : set() for analyzer in self.analyzers }
         previous : Union[ Identifier, None]  = None

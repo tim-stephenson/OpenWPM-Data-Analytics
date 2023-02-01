@@ -15,4 +15,6 @@ def CanvasFont(code : str, logger : logging.Logger):
                 con1 = True
             case ".font":
                 con2 = True
+            case _:
+                pass
     return con1 and con2

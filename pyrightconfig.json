@@ -1,0 +1,6 @@
+{
+    "reportShadowedImports" : "information",
+    "reportMissingTypeStubs" : "information",
+    "useLibraryCodeForTypes" : true,
+    "typeCheckingMode" : "strict"
+}

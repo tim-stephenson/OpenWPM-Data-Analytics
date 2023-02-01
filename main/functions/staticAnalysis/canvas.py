@@ -43,6 +43,8 @@ def Canvas(code : str, logger : logging.Logger):
             case ".restore":
                 # ProductiveCalls = True
                 pass
+            case _:
+                pass
 
     #    condition 2                  condition 4
     return  ( colors and characters)  and Extraction

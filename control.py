@@ -1,7 +1,7 @@
 # control code
 import logging
 import sqlite3
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Any
 import plyvel
 from pathlib import Path
 import json
@@ -49,7 +49,7 @@ path : Path = Path(args.path)
 logger = GenerateLogger(path.joinpath("analysis.log") )
 
 con : sqlite3.Connection = sqlite3.connect( str(path.joinpath("crawl-data.sqlite")) )
-db = plyvel.DB( str(path.joinpath("leveldb")) )
+db : Any = plyvel.DB( str(path.joinpath("leveldb")) ) # type: ignore
 
 n, f = runHealth(con)
 logger.info(f"total visits: {n}, failed/incomplete visits: {f}. Success percentage: {round(100* (1 - f/n)) }%")
@@ -65,7 +65,7 @@ StaticResults_by_visit_id = by_visit_id_only(StaticResults)
 DynamicResults_by_visit_id = by_visit_id_only(DynamicResults)
 
 for method in FingerprintingMethods:
-    join : Set[Identifier] = DynamicResults[method].intersection(StaticResults[method])
+    join : Set[Identifier] = DynamicResults[method].intersection(StaticResults[method]) #type: ignore
     logger.info(f"""Fingerprinting method: {method}, 
     in terms of pairs of (visit_id,script_url), 
     dynamically classified: {len(DynamicResults[method])}
@@ -87,6 +87,8 @@ with open(path.joinpath("dynamic_results.json"),"w") as fileObj:
     fileObj.write( json.dumps( toJSON_serializable(DynamicResults), indent= 4 )  )
 with open(path.joinpath("static_results.json"),"w") as fileObj:
     fileObj.write( json.dumps( toJSON_serializable(StaticResults), indent= 4 )  )
+
+
 
 
 

@@ -1,4 +1,4 @@
-from typing import Set
+from typing import Any, Set
 from main.functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC
 import ast
 import logging      
@@ -20,7 +20,7 @@ class Canvas(DynamicAnalysisABC):
         """
         return "Canvas"
 
-    def read_row(self, row : any) -> None:
+    def read_row(self, row : Any) -> None:
         """read a single row from """
         args = None
         try:
@@ -55,6 +55,8 @@ class Canvas(DynamicAnalysisABC):
                     self.ProductiveCalls = True
                 case 'CanvasRenderingContext2D.restore':
                     self.ProductiveCalls = True
+                case _:
+                    pass
         except Exception as e:
             self.logger.exception(f"Found Exception {e}, row: {row}")
 

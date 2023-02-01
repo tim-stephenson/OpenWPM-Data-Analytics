@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import sqlite3
 import logging
-from typing import Dict, Literal, Set, Tuple, Union
+from typing import Dict, Set, Tuple, Any
 
 # (visit_id, script_url)
 Identifier = Tuple[str,str]
@@ -15,7 +15,7 @@ class Analysis(ABC):
     """
 
     @abstractmethod
-    def __init__(self, con : sqlite3.Connection, db : any, logger : logging.Logger) -> None:
+    def __init__(self, con : sqlite3.Connection, db : Any, logger : logging.Logger) -> None:
         """"""
         pass
 

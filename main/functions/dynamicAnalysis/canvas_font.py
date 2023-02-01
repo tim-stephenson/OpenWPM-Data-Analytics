@@ -1,5 +1,5 @@
 import ast
-from typing import Dict, Set
+from typing import Any, Dict, Set
 import logging
 
 from main.functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC     
@@ -22,7 +22,7 @@ class CanvasFont(DynamicAnalysisABC):
         """
         return "CanvasFont"
 
-    def read_row(self, row : any) -> None:
+    def read_row(self, row : Any) -> None:
         """read a single row from """
         args = None
         try:
@@ -38,6 +38,8 @@ class CanvasFont(DynamicAnalysisABC):
                 case 'CanvasRenderingContext2D.measureText':
                     if row["operation"] == 'call' and args and len(args)==1:
                         self.textMeasured[args[0]] = 1 + (self.textMeasured[args[0]] if args[0] in self.textMeasured else 0)
+                case _:
+                    pass
         except Exception as e:
             self.logger.exception(f"Found Exception {e}, row: {row}")
 

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import logging
+from typing import Any
 
 class DynamicAnalysisABC(ABC):
     """
@@ -20,7 +21,7 @@ class DynamicAnalysisABC(ABC):
         pass
 
     @abstractmethod
-    def read_row(self, row : any) -> None:
+    def read_row(self, row : Any) -> None:
         """read a single row from """
         pass
     

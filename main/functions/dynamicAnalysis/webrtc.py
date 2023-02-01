@@ -1,3 +1,4 @@
+from typing import Any
 from main.functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC   
 import logging      
 
@@ -18,7 +19,7 @@ class WebRTC(DynamicAnalysisABC):
         """
         return "WebRTC"
 
-    def read_row(self, row : any) -> None:
+    def read_row(self, row : Any) -> None:
         """read a single row from """
         try:
             match row["symbol"]:
@@ -28,6 +29,8 @@ class WebRTC(DynamicAnalysisABC):
                     self.con2 = True
                 case 'RTCPeerConnection.onicecandidate':
                     self.con3 = True
+                case _:
+                    pass
         except Exception as e:
             self.logger.exception(f"Found Exception {e}, row: {row}")
 

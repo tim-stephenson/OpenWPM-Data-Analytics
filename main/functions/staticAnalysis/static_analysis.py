@@ -2,7 +2,7 @@
 import functools
 import logging
 import sqlite3
-from typing import Callable, Dict, List, Set
+from typing import Callable, Dict, List, Set, Any
 
 from main.functions.analysis import Analysis, Identifier
 from main.functions.staticAnalysis.canvas import Canvas
@@ -18,7 +18,7 @@ methods : Dict[str, Callable[[str, logging.Logger], bool] ] = {
 
 class StaticAnalysis(Analysis):
 
-    def __init__(self, con : sqlite3.Connection, db : any, logger : logging.Logger) -> None:
+    def __init__(self, con : sqlite3.Connection, db : Any, logger : logging.Logger) -> None:
         self.con = con
         self.db = db
         self.logger = logger
@@ -43,7 +43,7 @@ class StaticAnalysis(Analysis):
             FROM http_responses 
             WHERE content_hash <> "" 
         """)
-        responses.row_factory = sqlite3.Row
+        responses.row_factory = sqlite3.Row #type: ignore
 
         results : Dict[str, Set[Identifier] ] = { k : set() for k in methods }
         for row in responses:
