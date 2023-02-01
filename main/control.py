@@ -5,14 +5,14 @@ from typing import Dict, List, Set, Any
 import plyvel
 from pathlib import Path
 import json
-from main.functions.runHealth import runHealth
+from functions.runHealth import runHealth
 
 import argparse
 
 
-from main.functions.dynamicAnalysis.dynamic_analysis import DynamicAnalysis
-from main.functions.analysis import Analysis, Identifier,FingerprintingMethods
-from main.functions.staticAnalysis.static_analysis import StaticAnalysis
+from functions.dynamicAnalysis.dynamic_analysis import DynamicAnalysis
+from functions.analysis import Analysis, Identifier,FingerprintingMethods
+from functions.staticAnalysis.static_analysis import StaticAnalysis
 
 parser = argparse.ArgumentParser()
 parser.add_argument("path", help="path of datadir directory")

@@ -1,5 +1,5 @@
 from typing import Any
-from main.functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC   
+from functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC   
 import logging      
 
 class WebRTC(DynamicAnalysisABC):

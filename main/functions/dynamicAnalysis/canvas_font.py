@@ -2,7 +2,7 @@ import ast
 from typing import Any, Dict, Set
 import logging
 
-from main.functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC     
+from functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC     
 
 
 class CanvasFont(DynamicAnalysisABC):

@@ -2,11 +2,11 @@ import logging
 import sqlite3
 from typing import Any, Dict, List, Set, Union
 
-from main.functions.analysis import Analysis, Identifier
-from main.functions.dynamicAnalysis.canvas import Canvas
-from main.functions.dynamicAnalysis.webrtc import WebRTC
-from main.functions.dynamicAnalysis.canvas_font import CanvasFont
-from main.functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC
+from functions.analysis import Analysis, Identifier
+from functions.dynamicAnalysis.canvas import Canvas
+from functions.dynamicAnalysis.webrtc import WebRTC
+from functions.dynamicAnalysis.canvas_font import CanvasFont
+from functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC
 
 
 

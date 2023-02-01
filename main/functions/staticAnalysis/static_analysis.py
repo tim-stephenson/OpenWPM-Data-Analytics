@@ -4,10 +4,10 @@ import logging
 import sqlite3
 from typing import Callable, Dict, List, Set, Any
 
-from main.functions.analysis import Analysis, Identifier
-from main.functions.staticAnalysis.canvas import Canvas
-from main.functions.staticAnalysis.webrtc import WebRTC
-from main.functions.staticAnalysis.canvas_font import CanvasFont
+from functions.analysis import Analysis, Identifier
+from functions.staticAnalysis.canvas import Canvas
+from functions.staticAnalysis.webrtc import WebRTC
+from functions.staticAnalysis.canvas_font import CanvasFont
 
 
 methods : Dict[str, Callable[[str, logging.Logger], bool] ] = {
