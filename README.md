@@ -1,21 +1,14 @@
-## Sister repo to: [OpenWPM fork](https://github.com/tim-stephenson/OpenWPM)
+## Sister repo to: [OpenWPM fork](https://gitlab.com/wesleyancs-plp/openwpm-mods)
 
-```
-parentDirectory  
-└───OpenWPM
-│   │   README.md
-│   │   ...
-│   
-└───OpenWPM-Data-Analytics
-    │   README.md
-    │   ...
-```
+## Designed around [OpenWPM](https://github.com/openwpm/OpenWPM)
 
-### python virtual enviroment  infomation:
 
-With given `enviroment.yaml` file, run:
-```
-conda env create --force --file environment.yaml
-```
-which creates the enviroment, you can specify where you want the enviroment stored
+## Prerequisites
 
+- micromamba [Install](https://mamba.readthedocs.io/en/latest/installation.html)
+    - Any other conda-like enviroment manager would work (conda, miniconda, mamba), though `install.sh` and `run.sh` are set up to work with micromamba
+
+## Instructions
+
+- To install the virtual enviroment run: `bash -i install.sh`
+- To run an analaysis on the data from a OpenWPM crawl run: `bash run.sh [datadir path]`
