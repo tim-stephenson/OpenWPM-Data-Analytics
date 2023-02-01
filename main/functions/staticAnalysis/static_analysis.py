@@ -38,11 +38,11 @@ class StaticAnalysis(Analysis):
         return n
     
     def run(self) -> Dict[str, Set[Identifier] ]:
-        responses : sqlite3.Cursor = self.con.cursor().execute(
-            """SELECT id, visit_id, headers, url, content_hash
+        responses : sqlite3.Cursor = self.con.cursor().execute("""
+            SELECT id, visit_id, headers, url, content_hash
             FROM http_responses 
-            WHERE content_hash <> "" """
-            )
+            WHERE content_hash <> "" 
+        """)
         responses.row_factory = sqlite3.Row
 
         results : Dict[str, Set[Identifier] ] = { k : set() for k in methods }

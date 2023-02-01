@@ -58,8 +58,8 @@ logger.info(f"total visits: {n}, failed/incomplete visits: {f}. Success percenta
 SA : Analysis = StaticAnalysis(con, db, logger)
 DA : Analysis = DynamicAnalysis(con, db, logger)
 
-StaticResults = SA.run()
 DynamicResults = DA.run()
+StaticResults = SA.run()
 
 StaticResults_by_visit_id = by_visit_id_only(StaticResults)
 DynamicResults_by_visit_id = by_visit_id_only(DynamicResults)

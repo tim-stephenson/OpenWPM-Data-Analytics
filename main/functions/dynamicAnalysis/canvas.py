@@ -1,55 +1,75 @@
 from typing import Set
-import pandas as pd
+from main.functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC
 import ast
 import logging      
 
 
-def Canvas(df :  pd.DataFrame, logger : logging.Logger) -> bool:
-    # condition 1:
-    heightORwidthTooSmall : bool = False
-    # condition 2:
-    colors : Set[str] = set()
-    characters : Set[str] = set()
-    # condition 3:
-    ProductiveCalls : bool = False
-    #Condition 4:
-    Extraction : bool = False
-    for row in df.itertuples():
+class Canvas(DynamicAnalysisABC):
+    """
+    """
+
+    def __init__(self, logger : logging.Logger) -> None:
+        """
+        """
+        self.logger : logging.Logger  = logger
+        self.reset()
+
+    def __str__(self) -> str:
+        """
+        returns fingerprinting method
+        """
+        return "Canvas"
+
+    def read_row(self, row : any) -> None:
+        """read a single row from """
         args = None
         try:
-            if row.arguments is not None:
-                args = ast.literal_eval(row.arguments)
+            if row["arguments"] is not None:
+                args = ast.literal_eval(row["arguments"])
         except ValueError:
-            logger.info(f"Was unable to parse function arguments, row.arguments : {row.arguments}")
+            self.logger.info(f"""Was unable to parse function arguments, row.arguments : {row["arguments"]}""")
         try:
-            match row.symbol:
+            match row["symbol"]:
                 case 'HTMLCanvasElement.height':
-                    if row.operation == 'set' and row.value and float(row.value) < 16:
-                        heightORwidthTooSmall = True
+                    if row["operation"] == 'set' and row["value"] and float(row["value"]) < 16:
+                        self.heightORwidthTooSmall = True
                 case 'HTMLCanvasElement.width':
-                    if row.operation == 'set' and row.value and float(row.value) < 16:
-                        heightORwidthTooSmall = True
+                    if row["operation"] == 'set' and row["value"] and float(row["value"]) < 16:
+                        self.heightORwidthTooSmall = True
                 case 'CanvasRenderingContext2D.fillText':
                     if args is not None:
                         for char in args[0]:
-                            characters.add(char)
+                            self.characters.add(char)
                 case 'CanvasRenderingContext2D.fillStyle':
-                    if row.operation == 'set' and row.value:
-                        colors.add(row.value)
+                    if row["operation"] == 'set' and row["value"]:
+                        self.colors.add(row["value"])
                 case 'HTMLCanvasElement.toDataURL':
-                    Extraction = True
+                    self.Extraction = True
                 case 'CanvasRenderingContext2D.getImageData':
                     if args is not None:
                         if abs( args[2] ) >= 16 and abs( args[3] ) >= 16:
-                            Extraction = True
+                            self.Extraction = True
                 case 'HTMLCanvasElement.addEventListener':
-                    ProductiveCalls = True
+                    self.ProductiveCalls = True
                 case 'CanvasRenderingContext2D.save':
-                    ProductiveCalls = True
+                    self.ProductiveCalls = True
                 case 'CanvasRenderingContext2D.restore':
-                    ProductiveCalls = True
+                    self.ProductiveCalls = True
         except Exception as e:
-            logger.exception(f"Found Exception {e}, row: {row}")
+            self.logger.exception(f"Found Exception {e}, row: {row}")
 
-    #       condition 1                    condition 2                                   condition 3            condition 4
-    return (not heightORwidthTooSmall) and ( len(colors) > 2 or len(characters) > 10) and (not ProductiveCalls) and Extraction
+    def classify(self) -> bool:
+        """classify based on rows read"""
+        return (not self.heightORwidthTooSmall) and ( len(self.colors) > 2 or len(self.characters) > 10) and (not self.ProductiveCalls) and self.Extraction
+    
+    def reset(self) -> None:
+        """reset to the starting state to begin classifying another script """
+        # condition 1:
+        self.heightORwidthTooSmall : bool = False
+        # condition 2:
+        self.colors : Set[str] = set()
+        self.characters : Set[str] = set()
+        # condition 3:
+        self.ProductiveCalls : bool = False
+        #Condition 4:
+        self.Extraction : bool = False

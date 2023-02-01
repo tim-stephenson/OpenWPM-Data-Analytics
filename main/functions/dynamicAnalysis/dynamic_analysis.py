@@ -1,25 +1,24 @@
 import logging
 import sqlite3
-from typing import Dict, List, Set, Union, Callable
+from typing import Dict, List, Set, Union
+
 import pandas as pd
 
 from main.functions.analysis import Analysis, Identifier
 from main.functions.dynamicAnalysis.canvas import Canvas
 from main.functions.dynamicAnalysis.webrtc import WebRTC
 from main.functions.dynamicAnalysis.canvas_font import CanvasFont
+from main.functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC
 
 
-methods : Dict[str, Callable[[pd.DataFrame, logging.Logger], bool]] = {
-    "Canvas" : Canvas,
-    "WebRTC" : WebRTC,
-    "CanvasFont" : CanvasFont
-}
+
 
 class DynamicAnalysis(Analysis):
 
     def __init__(self, con : sqlite3.Connection, db : any, logger : logging.Logger) -> None:
         self.con = con
         self.logger = logger
+        self.analyzers : List[DynamicAnalysisABC] = [Canvas(self.logger), WebRTC(self.logger), CanvasFont(self.logger)]
 
 
     def total_identifiers(self) -> int:
@@ -42,32 +41,24 @@ class DynamicAnalysis(Analysis):
             ORDER BY visit_id, script_url"""
             )
         ordered.row_factory = sqlite3.Row
-        cols : List[str] = [column[0] for column in ordered.description]
 
-
-        results : Dict[str, Set[Identifier] ] = { k : set() for k in methods }
+        results : Dict[str, Set[Identifier] ] = { str(analyzer) : set() for analyzer in self.analyzers }
         previous : Union[ Identifier, None]  = None
-        lst: List[any] = []
         for row in ordered:
             id : Identifier = (row["visit_id"], row["script_url"] )
             if(previous == None):
                 previous = id
             if( previous != id ):
-                fingerprinting_methods = self._Analyze( pd.DataFrame(lst, columns=cols) )
-                for fingerprintingMethod in fingerprinting_methods:
-                    self.logger.info(f"{id} using {fingerprintingMethod}")
-                    results[fingerprintingMethod].add(id)
-                lst = []
+                for analyzer in self.analyzers:
+                    if analyzer.classify():
+                        self.logger.info(f"{previous} using {str(analyzer)}")
+                        results[str(analyzer)].add(previous)
+                    analyzer.reset()
                 previous = id
-            lst.append(row)
+            for analyzer in self.analyzers:
+                analyzer.read_row(row)
         return results
-
-    def _Analyze(self,df : pd.DataFrame ) -> List[str]:
-        lst : List[str] = []
-        for k, v in methods.items():
-            if(v(df, self.logger)):
-                lst.append(k)
-        return lst
+    
        
 
 

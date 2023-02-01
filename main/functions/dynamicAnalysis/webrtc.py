@@ -1,21 +1,43 @@
-import pandas as pd
+from main.functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC   
 import logging      
 
+class WebRTC(DynamicAnalysisABC):
+    """
+    """
 
-def WebRTC(df :  pd.DataFrame, logger : logging.Logger) -> bool:
+    def __init__(self, logger : logging.Logger) -> None:
+        """
+        """
+        self.logger = logger
+        self.reset()
 
-    con1 : bool = False
-    con2 : bool = False
-    con3 : bool = False
-    for row in df.itertuples():
+
+    def __str__(self) -> str:
+        """
+        returns fingerprinting method
+        """
+        return "WebRTC"
+
+    def read_row(self, row : any) -> None:
+        """read a single row from """
         try:
-            match row.symbol:
+            match row["symbol"]:
                 case 'RTCPeerConnection.createDataChannel':
-                    con1 = True
+                    self.con1 = True
                 case 'RTCPeerConnection.createOffer':
-                    con2 = True
+                    self.con2 = True
                 case 'RTCPeerConnection.onicecandidate':
-                    con3 = True
+                    self.con3 = True
         except Exception as e:
-            logger.exception(f"Found Exception {e}, row: {row}")
-    return con1 and con2 and con3
+            self.logger.exception(f"Found Exception {e}, row: {row}")
+
+
+    def classify(self) -> bool:
+        """classify based on rows read"""
+        return self.con1 and self.con2 and self.con3
+    
+    def reset(self) -> None:
+        """reset to the starting state to begin classifying another script """
+        self.con1 : bool = False
+        self.con2 : bool = False
+        self.con3 : bool = False
