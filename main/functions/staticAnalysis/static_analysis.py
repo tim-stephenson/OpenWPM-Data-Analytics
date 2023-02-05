@@ -2,12 +2,12 @@
 import functools
 import logging
 import sqlite3
-from typing import Callable, Dict, List, Set
+from typing import Callable, Dict, List, Set, Any
 
-from main.functions.analysis import Analysis, Identifier
-from main.functions.staticAnalysis.canvas import Canvas
-from main.functions.staticAnalysis.webrtc import WebRTC
-from main.functions.staticAnalysis.canvas_font import CanvasFont
+from functions.analysis import Analysis, Identifier
+from functions.staticAnalysis.canvas import Canvas
+from functions.staticAnalysis.webrtc import WebRTC
+from functions.staticAnalysis.canvas_font import CanvasFont
 
 
 methods : Dict[str, Callable[[str, logging.Logger], bool] ] = {
@@ -18,7 +18,7 @@ methods : Dict[str, Callable[[str, logging.Logger], bool] ] = {
 
 class StaticAnalysis(Analysis):
 
-    def __init__(self, con : sqlite3.Connection, db : any, logger : logging.Logger) -> None:
+    def __init__(self, con : sqlite3.Connection, db : Any, logger : logging.Logger) -> None:
         self.con = con
         self.db = db
         self.logger = logger
@@ -38,12 +38,12 @@ class StaticAnalysis(Analysis):
         return n
     
     def run(self) -> Dict[str, Set[Identifier] ]:
-        responses : sqlite3.Cursor = self.con.cursor().execute(
-            """SELECT id, visit_id, headers, url, content_hash
+        responses : sqlite3.Cursor = self.con.cursor().execute("""
+            SELECT id, visit_id, headers, url, content_hash
             FROM http_responses 
-            WHERE content_hash <> "" """
-            )
-        responses.row_factory = sqlite3.Row
+            WHERE content_hash <> "" 
+        """)
+        responses.row_factory = sqlite3.Row #type: ignore
 
         results : Dict[str, Set[Identifier] ] = { k : set() for k in methods }
         for row in responses:

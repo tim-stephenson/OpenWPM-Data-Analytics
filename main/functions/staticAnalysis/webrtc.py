@@ -18,4 +18,6 @@ def WebRTC(code : str, logger : logging.Logger):
                 con2 = True
             case ".onicecandidate":
                 con3 = True
+            case _:
+                pass
     return con1 and con2 and con3
