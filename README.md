@@ -1,4 +1,4 @@
-## Sister repo to: [OpenWPM fork](https://gitlab.com/wesleyancs-plp/openwpm-mods)
+## Sister repo to: [openwpm-mods](https://gitlab.com/wesleyancs-plp/openwpm-mods)
 
 ## Designed around [OpenWPM](https://github.com/openwpm/OpenWPM)
 
