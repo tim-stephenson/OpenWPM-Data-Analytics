@@ -19,7 +19,7 @@ class WebRTC(DynamicAnalysisABC):
         """
         return "WebRTC"
 
-    def read_row(self, row : Any) -> None:
+    def read_row(self, row : Any, parsedArguments : Any | None) -> None:
         """read a single row from """
         try:
             match row["symbol"]:

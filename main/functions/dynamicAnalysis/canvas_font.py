@@ -1,4 +1,3 @@
-import ast
 from typing import Any, Dict, Set
 import logging
 
@@ -22,22 +21,16 @@ class CanvasFont(DynamicAnalysisABC):
         """
         return "CanvasFont"
 
-    def read_row(self, row : Any) -> None:
+    def read_row(self, row : Any, parsedArguments : Any | None) -> None:
         """read a single row from """
-        args = None
-        try:
-            if row["arguments"] is not None:
-                args = ast.literal_eval(row["arguments"])
-        except ValueError:
-            self.logger.info(f"""Was unable to parse function arguments, row.arguments : {row["arguments"]}""")
         try:
             match row["symbol"]:
                 case 'CanvasRenderingContext2D.font':
                     if row["operation"] == 'set' and row["value"]:
                         self.fonts.add(row["value"])
                 case 'CanvasRenderingContext2D.measureText':
-                    if row["operation"] == 'call' and args and len(args)==1:
-                        self.textMeasured[args[0]] = 1 + (self.textMeasured[args[0]] if args[0] in self.textMeasured else 0)
+                    if row["operation"] == 'call' and parsedArguments and len(parsedArguments)==1:
+                        self.textMeasured[parsedArguments[0]] = 1 + (self.textMeasured[parsedArguments[0]] if parsedArguments[0] in self.textMeasured else 0)
                 case _:
                     pass
         except Exception as e:
@@ -46,7 +39,8 @@ class CanvasFont(DynamicAnalysisABC):
 
     def classify(self) -> bool:
         """classify based on rows read"""
-        self.logger.info(f"fonts: {len( self.fonts)}   measureText calls : { max(self.textMeasured.values(), default=0) } ")
+        if len( self.fonts) > 0 or max(self.textMeasured.values(), default=0) > 0:
+            self.logger.info(f"fonts: {len( self.fonts)}   measureText calls : { max(self.textMeasured.values(), default=0) } ")
         return len( self.fonts) >= 50 and ( max(self.textMeasured.values(), default=0) >= 50 )
 
     def reset(self) -> None:

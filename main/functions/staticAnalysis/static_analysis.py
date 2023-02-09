@@ -37,17 +37,18 @@ class StaticAnalysis(Analysis):
         n : int = query_response.fetchone()[0]
         return n
     
-    def run(self) -> Dict[str, Set[Identifier] ]:
+    def run(self, dry_run : bool = False) -> Dict[str, Set[Identifier] ]:
+        results : Dict[str, Set[Identifier] ] = { k : set() for k in methods }
+        if dry_run:
+            return results
         responses : sqlite3.Cursor = self.con.cursor().execute("""
             SELECT id, visit_id, headers, url, content_hash
             FROM http_responses 
             WHERE content_hash <> "" 
         """)
         responses.row_factory = sqlite3.Row #type: ignore
-
-        results : Dict[str, Set[Identifier] ] = { k : set() for k in methods }
         for row in responses:
-            script_analyze_results : List[str] = self._Analyze(bytes( row["content_hash"], encoding="ascii" ))
+            script_analyze_results : List[str] = self.__Analyze(bytes( row["content_hash"], encoding="ascii" ))
             id : Identifier = (row["visit_id"], row["url"] )
             for fingerprintingMethod in script_analyze_results:
                 self.logger.info(f"{id} using {fingerprintingMethod}")
@@ -55,7 +56,7 @@ class StaticAnalysis(Analysis):
         return results
 
     @functools.cache
-    def _Analyze(self,content_hash : bytes) -> List[str]:
+    def __Analyze(self,content_hash : bytes) -> List[str]:
         code : str = str( self.db.get(content_hash) ,encoding="utf-8", errors='ignore')
         toReturn : List[str] = []
         for k, v in methods.items():

@@ -1,6 +1,5 @@
 from typing import Any, Set
 from functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC
-import ast
 import logging      
 
 
@@ -20,14 +19,8 @@ class Canvas(DynamicAnalysisABC):
         """
         return "Canvas"
 
-    def read_row(self, row : Any) -> None:
+    def read_row(self, row : Any, parsedArguments : Any | None) -> None:
         """read a single row from """
-        args = None
-        try:
-            if row["arguments"] is not None:
-                args = ast.literal_eval(row["arguments"])
-        except ValueError:
-            self.logger.info(f"""Was unable to parse function arguments, row.arguments : {row["arguments"]}""")
         try:
             match row["symbol"]:
                 case 'HTMLCanvasElement.height':
@@ -37,8 +30,8 @@ class Canvas(DynamicAnalysisABC):
                     if row["operation"] == 'set' and row["value"] and float(row["value"]) < 16:
                         self.heightORwidthTooSmall = True
                 case 'CanvasRenderingContext2D.fillText':
-                    if args is not None:
-                        for char in args[0]:
+                    if parsedArguments is not None:
+                        for char in parsedArguments[0]:
                             self.characters.add(char)
                 case 'CanvasRenderingContext2D.fillStyle':
                     if row["operation"] == 'set' and row["value"]:
@@ -46,8 +39,8 @@ class Canvas(DynamicAnalysisABC):
                 case 'HTMLCanvasElement.toDataURL':
                     self.Extraction = True
                 case 'CanvasRenderingContext2D.getImageData':
-                    if args is not None:
-                        if abs( args[2] ) >= 16 and abs( args[3] ) >= 16:
+                    if parsedArguments is not None:
+                        if abs( parsedArguments[2] ) >= 16 and abs( parsedArguments[3] ) >= 16:
                             self.Extraction = True
                 case 'HTMLCanvasElement.addEventListener':
                     self.ProductiveCalls = True

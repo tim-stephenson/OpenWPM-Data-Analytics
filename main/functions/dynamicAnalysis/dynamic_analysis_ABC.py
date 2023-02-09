@@ -21,7 +21,7 @@ class DynamicAnalysisABC(ABC):
         pass
 
     @abstractmethod
-    def read_row(self, row : Any) -> None:
+    def read_row(self, row : Any, parsedArguments : Any | None) -> None:
         """read a single row from """
         pass
     
