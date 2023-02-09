@@ -46,8 +46,8 @@ class CanvasFont(DynamicAnalysisABC):
 
     def classify(self) -> bool:
         """classify based on rows read"""
-        self.logger.info(f"fonts: {len( self.fonts)}   measureText calls : { max(self.textMeasured.values()) if len( self.textMeasured) > 0 else 0 } ")
-        return len( self.fonts) >= 50 and (  ( max( self.textMeasured.values()) if len( self.textMeasured) > 0 else 0 ) >= 50 )
+        self.logger.info(f"fonts: {len( self.fonts)}   measureText calls : { max(self.textMeasured.values(), default=0) } ")
+        return len( self.fonts) >= 50 and ( max(self.textMeasured.values(), default=0) >= 50 )
 
     def reset(self) -> None:
         """reset to the starting state to begin classifying another script """
