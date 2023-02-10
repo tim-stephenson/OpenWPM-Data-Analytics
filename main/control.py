@@ -2,7 +2,7 @@
 import logging
 import sqlite3
 from typing import Dict, List, Set, Any
-import plyvel
+import plyvel # type: ignore
 from pathlib import Path
 import json
 from functions.runHealth import runHealth

@@ -8,6 +8,7 @@ from functions.dynamicAnalysis.canvas import Canvas
 from functions.dynamicAnalysis.webrtc import WebRTC
 from functions.dynamicAnalysis.canvas_font import CanvasFont
 from functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC
+from functions.dynamicAnalysis.webgl import WebGL
 
 
 
@@ -17,7 +18,7 @@ class DynamicAnalysis(Analysis):
     def __init__(self, con : sqlite3.Connection, db : Any, logger : logging.Logger) -> None:
         self.con = con
         self.logger = logger
-        self.analyzers : List[DynamicAnalysisABC] = [Canvas(self.logger), WebRTC(self.logger), CanvasFont(self.logger)]
+        self.analyzers : List[DynamicAnalysisABC] = [Canvas(self.logger), WebRTC(self.logger), CanvasFont(self.logger), WebGL(self.logger)]
 
     def total_identifiers(self) -> int:
         query_response = sqlite3.Cursor = self.con.cursor().execute("""

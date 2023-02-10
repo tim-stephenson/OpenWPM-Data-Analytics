@@ -7,7 +7,7 @@ from typing import Dict, Set, Tuple, Any
 Identifier = Tuple[str,str]
 
 
-FingerprintingMethods = ["Canvas", "WebRTC", "CanvasFont"]
+FingerprintingMethods = ["Canvas", "WebRTC", "CanvasFont","WebGL"]
 
 class Analysis(ABC):
     """

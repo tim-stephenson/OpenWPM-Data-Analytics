@@ -8,12 +8,14 @@ from functions.analysis import Analysis, Identifier
 from functions.staticAnalysis.canvas import Canvas
 from functions.staticAnalysis.webrtc import WebRTC
 from functions.staticAnalysis.canvas_font import CanvasFont
+from functions.staticAnalysis.webgl import WebGL
 
 
 methods : Dict[str, Callable[[str, logging.Logger], bool] ] = {
     "Canvas" : Canvas,
     "WebRTC" : WebRTC,
-    "CanvasFont" : CanvasFont
+    "CanvasFont" : CanvasFont,
+    "WebGL" : WebGL
 }
 
 class StaticAnalysis(Analysis):
