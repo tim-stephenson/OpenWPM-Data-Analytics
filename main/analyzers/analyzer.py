@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from logging import Logger
+import logging
 import sqlite3
 from typing import Any, List, Tuple
 
@@ -8,13 +8,13 @@ Abstract Base Class for an Analyzer
 """
 class Analyzer(ABC):
 
-    def __init__(self, con : sqlite3.Connection, db : Any, logger : Logger) -> None:
+    def __init__(self, con : sqlite3.Connection, db : Any, logger : logging.Logger) -> None:
         """
         Initialize the analyzer
         """
         self.con: sqlite3.Connection = con
         self.db: Any = db
-        self.logger: Logger = logger
+        self.logger: logging.Logger = logger
     
     def analysis_name(self) -> str:
         """

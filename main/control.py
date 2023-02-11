@@ -30,3 +30,23 @@ if __name__ == '__main__':
     with open(path.joinpath("analysis_results.json"),"w") as fileObj:
         json.dump(results,fileObj, indent=4)
 
+
+
+    # for method in FingerprintingMethods:
+    #     join : Set[Identifier] = DynamicResults[method].intersection(StaticResults[method]) #type: ignore
+    #     logger.info(f"""Fingerprinting method: {method}, 
+    #     in terms of pairs of (visit_id,script_url), 
+    #     dynamically classified: {len(DynamicResults[method])}
+    #     statically classified: {len(StaticResults[method])}
+    #     intersection: {len(join)}
+    #     total dynamically analyzed: {DA.total_identifiers()} 
+    #     total statically analyzed: {SA.total_identifiers()} 
+    #     """)
+    #     join : Set[str] = DynamicResults_by_visit_id[method].intersection( StaticResults_by_visit_id[method])
+    #     logger.info(f"""Fingerprinting method: {method}, 
+    #     in terms of visit_id only, 
+    #     dynamically classified: {len(DynamicResults_by_visit_id[method])}
+    #     statically classified: {len(StaticResults_by_visit_id[method])}
+    #     intersection: {len(join)}
+    #     total visits: {n}
+    #     """)

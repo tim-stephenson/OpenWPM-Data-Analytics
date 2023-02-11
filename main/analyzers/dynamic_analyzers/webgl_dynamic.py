@@ -8,10 +8,10 @@ class WebGL_Dynamic(Dynamic_Analyzer):
         return "WebGL"
     
     def _classify(self) -> bool:
-        return self.con1
+        return self._con1
 
     def _reset(self) -> None :
-        self.con1 : bool = False
+        self._con1 : bool = False
 
     def _read_row(self, row : Any) -> None:
         parsedArguments: List[Any] = parseArguments(row["arguments"])
@@ -19,7 +19,7 @@ class WebGL_Dynamic(Dynamic_Analyzer):
             match row["symbol"]:
                 case 'WebGLRenderingContext.getParameter':
                     if len(parsedArguments) >= 1 and ( parsedArguments[0] == 37445 or parsedArguments[0] == 37446):
-                        self.con1 = True
+                        self._con1 = True
                 case _:
                     pass
         except Exception as e:
