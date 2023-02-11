@@ -1,107 +1,32 @@
 # control code
 import logging
 import sqlite3
-from typing import Dict, List, Set, Any
+from typing import Dict, List, Any, Tuple
 import plyvel # type: ignore
 from pathlib import Path
 import json
-from functions_old.runHealth import runHealth
+from runHealth import runHealth
 
 import argparse
 
-
-from functions_old.dynamicAnalysis.dynamic_analysis import DynamicAnalysis
-from functions_old.analysis import Analysis, Identifier,FingerprintingMethods
-from functions_old.staticAnalysis.static_analysis import StaticAnalysis
-
-
-
-def GenerateLogger(filename : Path) -> logging.Logger:
-    logger = logging.getLogger('analysis')
-    logger.setLevel(logging.DEBUG)
-
-    formatter = logging.Formatter("%(asctime)s - (%(filename)s:%(lineno)d) - %(levelname)s\n%(message)s")
-    
-
-    ch = logging.StreamHandler()
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-
-    fh = logging.FileHandler(filename, 'w')
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
-    return logger
-
-
-def by_visit_id_only(results :Dict[str, Set[Identifier] ]) -> Dict[str, Set[str]]:
-    toReturn : Dict[str, Set[str]] = {}
-    for k, v in results.items():
-        toReturn[k] = set( map(lambda id : id[0], v) )
-    return toReturn
-
-def toJSON_serializable(results :Dict[str, Set[Identifier] ]) -> Dict[str, List[Identifier]]:
-    return {k : list(v) for k, v in results.items()}
-
-
-
+from utils import GenerateLogger, run_all_analyzers
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser: argparse.ArgumentParser = argparse.ArgumentParser()
     parser.add_argument("path", help="path of datadir directory")
-    args = parser.parse_args()
+    args: argparse.Namespace = parser.parse_args()
     path : Path = Path(args.path)
 
-    logger = GenerateLogger(path.joinpath("analysis.log") )
+    logger: logging.Logger = GenerateLogger(path.joinpath("analysis2.log") )
 
     con : sqlite3.Connection = sqlite3.connect( str(path.joinpath("crawl-data.sqlite")) )
     db : Any = plyvel.DB( str(path.joinpath("leveldb")) ) # type: ignore
 
-    n, f = runHealth(con)
+    n,f = runHealth(con)
     logger.info(f"total visits: {n}, failed/incomplete visits: {f}. Success percentage: {round(100* (1 - f/n)) }%")
 
+    results: Dict[str, List[Tuple[str, str]]] = run_all_analyzers(con,db,logger)
 
-    SA : Analysis = StaticAnalysis(con, db, logger)
-    DA : Analysis = DynamicAnalysis(con, db, logger)
-
-    DynamicResults = DA.run()
-    StaticResults = SA.run()
-
-    StaticResults_by_visit_id = by_visit_id_only(StaticResults)
-    DynamicResults_by_visit_id = by_visit_id_only(DynamicResults)
-
-    for method in FingerprintingMethods:
-        join : Set[Identifier] = DynamicResults[method].intersection(StaticResults[method]) #type: ignore
-        logger.info(f"""Fingerprinting method: {method}, 
-        in terms of pairs of (visit_id,script_url), 
-        dynamically classified: {len(DynamicResults[method])}
-        statically classified: {len(StaticResults[method])}
-        intersection: {len(join)}
-        total dynamically analyzed: {DA.total_identifiers()} 
-        total statically analyzed: {SA.total_identifiers()} 
-        """)
-        join : Set[str] = DynamicResults_by_visit_id[method].intersection( StaticResults_by_visit_id[method])
-        logger.info(f"""Fingerprinting method: {method}, 
-        in terms of visit_id only, 
-        dynamically classified: {len(DynamicResults_by_visit_id[method])}
-        statically classified: {len(StaticResults_by_visit_id[method])}
-        intersection: {len(join)}
-        total visits: {n}
-        """)
-
-    with open(path.joinpath("dynamic_results.json"),"w") as fileObj:
-        fileObj.write( json.dumps( toJSON_serializable(DynamicResults), indent= 4 )  )
-    with open(path.joinpath("static_results.json"),"w") as fileObj:
-        fileObj.write( json.dumps( toJSON_serializable(StaticResults), indent= 4 )  )
-
-
-
-
-
-
-
-
-
-
-
-
+    with open(path.joinpath("analysis_results.json"),"w") as fileObj:
+        json.dump(results,fileObj, indent=4)
 
