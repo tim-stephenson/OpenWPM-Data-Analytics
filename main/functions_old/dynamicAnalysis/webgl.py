@@ -1,8 +1,8 @@
 from typing import Any
-from functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC   
+from functions_old.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC   
 import logging      
 
-class WebRTC(DynamicAnalysisABC):
+class WebGL(DynamicAnalysisABC):
     """
     """
 
@@ -12,23 +12,19 @@ class WebRTC(DynamicAnalysisABC):
         self.logger = logger
         self.reset()
 
-
     def __str__(self) -> str:
         """
         returns fingerprinting method
         """
-        return "WebRTC"
+        return "WebGL"
 
     def read_row(self, row : Any, parsedArguments : Any | None) -> None:
         """read a single row from """
         try:
             match row["symbol"]:
-                case 'RTCPeerConnection.createDataChannel':
-                    self.con1 = True
-                case 'RTCPeerConnection.createOffer':
-                    self.con2 = True
-                case 'RTCPeerConnection.onicecandidate':
-                    self.con3 = True
+                case 'WebGLRenderingContext.getParameter':
+                    if parsedArguments is not None and len(parsedArguments) >= 1 and ( parsedArguments[0] == 37445 or parsedArguments[0] == 37446):
+                        self.con1 = True
                 case _:
                     pass
         except Exception as e:
@@ -37,10 +33,8 @@ class WebRTC(DynamicAnalysisABC):
 
     def classify(self) -> bool:
         """classify based on rows read"""
-        return self.con1 and self.con2 and self.con3
+        return self.con1
     
     def reset(self) -> None:
         """reset to the starting state to begin classifying another script """
         self.con1 : bool = False
-        self.con2 : bool = False
-        self.con3 : bool = False

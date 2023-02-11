@@ -1,7 +1,7 @@
 from typing import Any, Dict, Set
 import logging
 
-from functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC     
+from functions_old.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC     
 
 
 class CanvasFont(DynamicAnalysisABC):

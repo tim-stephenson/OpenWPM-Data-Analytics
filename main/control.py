@@ -5,14 +5,14 @@ from typing import Dict, List, Set, Any
 import plyvel # type: ignore
 from pathlib import Path
 import json
-from functions.runHealth import runHealth
+from functions_old.runHealth import runHealth
 
 import argparse
 
 
-from functions.dynamicAnalysis.dynamic_analysis import DynamicAnalysis
-from functions.analysis import Analysis, Identifier,FingerprintingMethods
-from functions.staticAnalysis.static_analysis import StaticAnalysis
+from functions_old.dynamicAnalysis.dynamic_analysis import DynamicAnalysis
+from functions_old.analysis import Analysis, Identifier,FingerprintingMethods
+from functions_old.staticAnalysis.static_analysis import StaticAnalysis
 
 
 

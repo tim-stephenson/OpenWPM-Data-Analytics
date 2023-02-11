@@ -1,5 +1,5 @@
 from typing import Any, Set
-from functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC
+from functions_old.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC
 import logging      
 
 

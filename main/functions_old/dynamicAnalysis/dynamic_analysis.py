@@ -3,12 +3,12 @@ import logging
 import sqlite3
 from typing import Any, Dict, List, Set, Union
 
-from functions.analysis import Analysis, Identifier
-from functions.dynamicAnalysis.canvas import Canvas
-from functions.dynamicAnalysis.webrtc import WebRTC
-from functions.dynamicAnalysis.canvas_font import CanvasFont
-from functions.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC
-from functions.dynamicAnalysis.webgl import WebGL
+from functions_old.analysis import Analysis, Identifier
+from functions_old.dynamicAnalysis.canvas import Canvas
+from functions_old.dynamicAnalysis.webrtc import WebRTC
+from functions_old.dynamicAnalysis.canvas_font import CanvasFont
+from functions_old.dynamicAnalysis.dynamic_analysis_ABC import DynamicAnalysisABC
+from functions_old.dynamicAnalysis.webgl import WebGL
 
 
 
@@ -21,7 +21,7 @@ class DynamicAnalysis(Analysis):
         self.analyzers : List[DynamicAnalysisABC] = [Canvas(self.logger), WebRTC(self.logger), CanvasFont(self.logger), WebGL(self.logger)]
 
     def total_identifiers(self) -> int:
-        query_response = sqlite3.Cursor = self.con.cursor().execute("""
+        query_response : sqlite3.Cursor = self.con.cursor().execute("""
             WITH a AS (
             SELECT visit_id,script_url
             FROM javascript
