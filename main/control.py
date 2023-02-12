@@ -1,100 +1,69 @@
-# control code
 import logging
 import sqlite3
-from typing import Dict, List, Set, Any
+from typing import Dict, List, Any, Tuple
 import plyvel
 from pathlib import Path
 import json
-from functions.runHealth import runHealth
+from analyzers.analyzer import Analyzer
+from runHealth import runHealth
 
 import argparse
 
+from utils import GenerateLogger, all_analyzers, get_all_symmetric_differences, load_cache, store_to_cache, run_analyzers
 
-from functions.dynamicAnalysis.dynamic_analysis import DynamicAnalysis
-from functions.analysis import Analysis, Identifier,FingerprintingMethods
-from functions.staticAnalysis.static_analysis import StaticAnalysis
+if __name__ == '__main__':
+    parser: argparse.ArgumentParser = argparse.ArgumentParser()
+    parser.add_argument("path",  help="path of datadir directory",)
+    parser.add_argument("--from_cache", help="use analysis data from previous run", action="store_true")
+    args: argparse.Namespace = parser.parse_args()
 
-parser = argparse.ArgumentParser()
-parser.add_argument("path", help="path of datadir directory")
-args = parser.parse_args()
-
-def GenerateLogger(filename : Path) -> logging.Logger:
-    logger = logging.getLogger('analysis')
-    logger.setLevel(logging.DEBUG)
-
-    formatter = logging.Formatter("%(asctime)s - (%(filename)s:%(lineno)d) - %(levelname)s\n%(message)s")
+    path : Path = Path(args.path)
+    logger: logging.Logger = GenerateLogger(path.joinpath("analysis.log") )
+    cached_results : None | Dict[str, List[Tuple[str, str]]] = None
+    if args.__getattribute__("from_cache"):
+        try:
+            with open(path.joinpath("analysis_results.json"),"r") as results_fp:
+                cached_results = { k : [tuple(pair) for pair in v] for k,v in dict(json.load(results_fp)).items() }
+        except FileNotFoundError:
+            logger.warning("Program was run with '--from-cache' yet no cache exits. Program is ignoring --from-cache flag.")
     
+    con : sqlite3.Connection = sqlite3.connect( str(path.joinpath("crawl-data.sqlite")) )
+    db : Any = plyvel.DB( str(path.joinpath("leveldb")) ) # type: ignore
 
-    ch = logging.StreamHandler()
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+    n,f = runHealth(con)
+    logger.info(f"total visits: {n}, failed/incomplete visits: {f}. Success percentage: {round(100* (1 - f/n)) }%")
 
-    fh = logging.FileHandler(filename, 'w')
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
-    return logger
+    analyzer_objects: List[Analyzer] = all_analyzers(con,db,logger)
+    if cached_results is not None:
+        load_cache(analyzer_objects, cached_results)
+    else:
+        run_analyzers(analyzer_objects)
 
+    get_all_symmetric_differences(analyzer_objects, logger)
 
-def by_visit_id_only(results :Dict[str, Set[Identifier] ]) -> Dict[str, Set[str]]:
-    toReturn : Dict[str, Set[str]] = {}
-    for k, v in results.items():
-        toReturn[k] = set( map(lambda id : id[0], v) )
-    return toReturn
-
-def toJSON_serializable(results :Dict[str, Set[Identifier] ]) -> Dict[str, List[Identifier]]:
-    return {k : list(v) for k, v in results.items()}
-
-path : Path = Path(args.path)
-
-logger = GenerateLogger(path.joinpath("analysis.log") )
-
-con : sqlite3.Connection = sqlite3.connect( str(path.joinpath("crawl-data.sqlite")) )
-db : Any = plyvel.DB( str(path.joinpath("leveldb")) ) # type: ignore
-
-n, f = runHealth(con)
-logger.info(f"total visits: {n}, failed/incomplete visits: {f}. Success percentage: {round(100* (1 - f/n)) }%")
-
-
-SA : Analysis = StaticAnalysis(con, db, logger)
-DA : Analysis = DynamicAnalysis(con, db, logger)
-
-DynamicResults = DA.run()
-StaticResults = SA.run()
-
-StaticResults_by_visit_id = by_visit_id_only(StaticResults)
-DynamicResults_by_visit_id = by_visit_id_only(DynamicResults)
-
-for method in FingerprintingMethods:
-    join : Set[Identifier] = DynamicResults[method].intersection(StaticResults[method]) #type: ignore
-    logger.info(f"""Fingerprinting method: {method}, 
-    in terms of pairs of (visit_id,script_url), 
-    dynamically classified: {len(DynamicResults[method])}
-    statically classified: {len(StaticResults[method])}
-    intersection: {len(join)}
-    total dynamically analyzed: {DA.total_identifiers()} 
-    total statically analyzed: {SA.total_identifiers()} 
-     """)
-    join : Set[str] = DynamicResults_by_visit_id[method].intersection( StaticResults_by_visit_id[method])
-    logger.info(f"""Fingerprinting method: {method}, 
-    in terms of visit_id only, 
-    dynamically classified: {len(DynamicResults_by_visit_id[method])}
-    statically classified: {len(StaticResults_by_visit_id[method])}
-    intersection: {len(join)}
-    total visits: {n}
-    """)
-
-with open(path.joinpath("dynamic_results.json"),"w") as fileObj:
-    fileObj.write( json.dumps( toJSON_serializable(DynamicResults), indent= 4 )  )
-with open(path.joinpath("static_results.json"),"w") as fileObj:
-    fileObj.write( json.dumps( toJSON_serializable(StaticResults), indent= 4 )  )
+    if cached_results is None:
+        with open(path.joinpath("analysis_results.json"),"w") as results_fp:
+            json.dump(store_to_cache(analyzer_objects),results_fp, indent=4)
+        
 
 
 
 
-
-
-
-
-
-
-
+    # for method in FingerprintingMethods:
+    #     join : Set[Identifier] = DynamicResults[method].intersection(StaticResults[method]) #type: ignore
+    #     logger.info(f"""Fingerprinting method: {method}, 
+    #     in terms of pairs of (visit_id,script_url), 
+    #     dynamically classified: {len(DynamicResults[method])}
+    #     statically classified: {len(StaticResults[method])}
+    #     intersection: {len(join)}
+    #     total dynamically analyzed: {DA.total_identifiers()} 
+    #     total statically analyzed: {SA.total_identifiers()} 
+    #     """)
+    #     join : Set[str] = DynamicResults_by_visit_id[method].intersection( StaticResults_by_visit_id[method])
+    #     logger.info(f"""Fingerprinting method: {method}, 
+    #     in terms of visit_id only, 
+    #     dynamically classified: {len(DynamicResults_by_visit_id[method])}
+    #     statically classified: {len(StaticResults_by_visit_id[method])}
+    #     intersection: {len(join)}
+    #     total visits: {n}
+    #     """)
