@@ -8,22 +8,22 @@ class WebRTC_1M_Dynamic(Dynamic_Analyzer):
         return "WebRTC"
     
     def _classify(self) -> bool:
-        return self._con1 and self._con2 and self._con3
+        return self.__con1 and self.__con2 and self.__con3
 
     def _reset(self) -> None :
-        self._con1 : bool = False
-        self._con2 : bool = False
-        self._con3 : bool = False
+        self.__con1 : bool = False
+        self.__con2 : bool = False
+        self.__con3 : bool = False
 
     def _read_row(self, row : Any) -> None:
         try:
             match row["symbol"]:
                 case 'RTCPeerConnection.createDataChannel':
-                    self._con1 = True
+                    self.__con1 = True
                 case 'RTCPeerConnection.createOffer':
-                    self._con2 = True
+                    self.__con2 = True
                 case 'RTCPeerConnection.onicecandidate':
-                    self._con3 = True
+                    self.__con3 = True
                 case _:
                     pass
         except Exception as e:

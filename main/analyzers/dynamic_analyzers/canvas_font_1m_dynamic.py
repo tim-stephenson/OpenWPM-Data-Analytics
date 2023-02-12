@@ -8,11 +8,11 @@ class Canvas_Font_1M_Dynamic(Dynamic_Analyzer):
         return "Canvas Font"
     
     def _classify(self) -> bool:
-        return len( self._fonts) >= 50 and ( max(self._textMeasured.values(), default=0) >= 50 )
+        return len( self.__fonts) >= 50 and ( max(self.__textMeasured.values(), default=0) >= 50 )
 
     def _reset(self) -> None :
-        self._fonts : Set[str] = set()
-        self._textMeasured : Dict[str, int] = dict()
+        self.__fonts : Set[str] = set()
+        self.__textMeasured : Dict[str, int] = dict()
 
     def _read_row(self, row : Any) -> None:
         parsedArguments: List[Any] = parseArguments(row["arguments"])
@@ -20,13 +20,13 @@ class Canvas_Font_1M_Dynamic(Dynamic_Analyzer):
             match row["symbol"]:
                 case 'CanvasRenderingContext2D.font':
                     if row["operation"] == 'set' and row["value"]:
-                        self._fonts.add(row["value"])
+                        self.__fonts.add(row["value"])
                 case 'CanvasRenderingContext2D.measureText':
                     if row["operation"] == 'call' and len(parsedArguments) > 0:
-                        if parsedArguments[0] in self._textMeasured:
-                            self._textMeasured[parsedArguments[0]] += 1
+                        if parsedArguments[0] in self.__textMeasured:
+                            self.__textMeasured[parsedArguments[0]] += 1
                         else:
-                            self._textMeasured[parsedArguments[0]] = 1
+                            self.__textMeasured[parsedArguments[0]] = 1
                 case _:
                     pass
         except Exception as e:
