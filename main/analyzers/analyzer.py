@@ -44,8 +44,16 @@ class Analyzer(ABC):
         """
         pass
         
+    
+    def run_analysis(self) -> None:
+        """
+        manually trigger a run of the analysis.
+        results are accessible via 'get_analysis_results'
+        """
+        self.results = self._analyze()
+
     @abstractmethod
-    def analyze(self) -> List[ Tuple[str,str] ]:
+    def _analyze(self) -> List[ Tuple[str,str] ]:
         """
         run this analysis, returning a list of (visit_id,script_url) pairs which were classified
         to be doing the fingerprinting method being analyzed
@@ -55,10 +63,10 @@ class Analyzer(ABC):
     def get_analysis_results(self) -> List[ Tuple[str,str] ]:
         """
         get the analysis results.
-        runs the analyze method if no results are currently available
+        runs the run_analysis method if no results are currently available
         """
         if self.results is None:
-            self.results = self.analyze()
+            self.results = self._analyze()
         return self.results
     
     def set_analysis_results(self, results: List[ Tuple[str,str] ]) -> None:

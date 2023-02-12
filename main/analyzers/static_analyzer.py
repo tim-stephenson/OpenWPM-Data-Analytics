@@ -31,7 +31,7 @@ class Static_Analyzer(Analyzer):
         """)
         return query_response.fetchall()
 
-    def analyze(self) -> List[ Tuple[str,str] ]:
+    def _analyze(self) -> List[ Tuple[str,str] ]:
         content_hash_results : Set[bytes] = set()
         for key, value in self.db: 
             if self._analyze_one( str( value ,encoding="utf-8", errors='ignore') ): 

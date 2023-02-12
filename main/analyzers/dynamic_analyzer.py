@@ -31,7 +31,7 @@ class Dynamic_Analyzer(Analyzer):
         """)
         return query_response.fetchall()
 
-    def analyze(self) -> List[ Tuple[str,str] ]:
+    def _analyze(self) -> List[ Tuple[str,str] ]:
         results : List[Tuple[str,str]] = []
         ordered : sqlite3.Cursor = self.con.execute("""
             SELECT * 

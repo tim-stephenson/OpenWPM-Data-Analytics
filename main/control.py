@@ -1,34 +1,51 @@
-# control code
 import logging
 import sqlite3
 from typing import Dict, List, Any, Tuple
-import plyvel # type: ignore
+import plyvel
 from pathlib import Path
 import json
+from analyzers.analyzer import Analyzer
 from runHealth import runHealth
 
 import argparse
 
-from utils import GenerateLogger, run_all_analyzers
+from utils import GenerateLogger, all_analyzers, get_all_symmetric_differences, load_cache, store_to_cache, run_analyzers
 
 if __name__ == '__main__':
     parser: argparse.ArgumentParser = argparse.ArgumentParser()
-    parser.add_argument("path", help="path of datadir directory")
+    parser.add_argument("path",  help="path of datadir directory",)
+    parser.add_argument("--from_cache", help="use analysis data from previous run", action="store_true")
     args: argparse.Namespace = parser.parse_args()
+
     path : Path = Path(args.path)
-
-    logger: logging.Logger = GenerateLogger(path.joinpath("analysis2.log") )
-
+    logger: logging.Logger = GenerateLogger(path.joinpath("analysis.log") )
+    cached_results : None | Dict[str, List[Tuple[str, str]]] = None
+    if args.__getattribute__("from_cache"):
+        try:
+            with open(path.joinpath("analysis_results.json"),"r") as results_fp:
+                cached_results = { k : [tuple(pair) for pair in v] for k,v in dict(json.load(results_fp)).items() }
+        except FileNotFoundError:
+            logger.warning("Program was run with '--from-cache' yet no cache exits. Program is ignoring --from-cache flag.")
+    
     con : sqlite3.Connection = sqlite3.connect( str(path.joinpath("crawl-data.sqlite")) )
     db : Any = plyvel.DB( str(path.joinpath("leveldb")) ) # type: ignore
 
     n,f = runHealth(con)
     logger.info(f"total visits: {n}, failed/incomplete visits: {f}. Success percentage: {round(100* (1 - f/n)) }%")
 
-    results: Dict[str, List[Tuple[str, str]]] = run_all_analyzers(con,db,logger)
+    analyzer_objects: List[Analyzer] = all_analyzers(con,db,logger)
+    if cached_results is not None:
+        load_cache(analyzer_objects, cached_results)
+    else:
+        run_analyzers(analyzer_objects)
 
-    with open(path.joinpath("analysis_results.json"),"w") as fileObj:
-        json.dump(results,fileObj, indent=4)
+    get_all_symmetric_differences(analyzer_objects, logger)
+
+    if cached_results is None:
+        with open(path.joinpath("analysis_results.json"),"w") as results_fp:
+            json.dump(store_to_cache(analyzer_objects),results_fp, indent=4)
+        
+
 
 
 
