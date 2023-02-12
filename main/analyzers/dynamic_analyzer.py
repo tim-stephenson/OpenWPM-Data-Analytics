@@ -24,6 +24,13 @@ class Dynamic_Analyzer(Analyzer):
         n : int = query_response.fetchone()[0]
         return n
 
+    def analysis_domain(self) ->  List[ Tuple[str,str] ]:
+        query_response: sqlite3.Cursor = self.con.execute("""
+            SELECT DISTINCT visit_id,script_url
+            FROM JAVASCRIPT
+        """)
+        return query_response.fetchall()
+
     def analyze(self) -> List[ Tuple[str,str] ]:
         results : List[Tuple[str,str]] = []
         ordered : sqlite3.Cursor = self.con.execute("""

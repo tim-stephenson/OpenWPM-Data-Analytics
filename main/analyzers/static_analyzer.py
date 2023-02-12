@@ -22,6 +22,14 @@ class Static_Analyzer(Analyzer):
         """)
         n : int = query_response.fetchone()[0]
         return n
+    
+    def analysis_domain(self) ->  List[ Tuple[str,str] ]:
+        query_response: sqlite3.Cursor = self.con.execute("""
+            SELECT DISTINCT visit_id,url
+            FROM http_responses
+            WHERE content_hash <> ""
+        """)
+        return query_response.fetchall()
 
     def analyze(self) -> List[ Tuple[str,str] ]:
         content_hash_results : Set[bytes] = set()
