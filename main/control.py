@@ -14,6 +14,8 @@ from utils import GenerateLogger, all_analyzers, get_all_symmetric_differences, 
 if __name__ == '__main__':
     parser: argparse.ArgumentParser = argparse.ArgumentParser()
     parser.add_argument("path",  help="path of datadir directory",)
+    parser.add_argument('--leveldb', type=str, action='store',
+        help='Name of LevelDB created by OpenWPM', default='leveldb')
     parser.add_argument("--from_cache", help="use analysis data from previous run", action="store_true")
     args: argparse.Namespace = parser.parse_args()
 
@@ -28,7 +30,7 @@ if __name__ == '__main__':
             logger.warning("Program was run with '--from-cache' yet no cache exits. Program is ignoring --from-cache flag.")
     
     con : sqlite3.Connection = sqlite3.connect( str(path.joinpath("crawl-data.sqlite")) )
-    db : Any = plyvel.DB( str(path.joinpath("leveldb")) ) # type: ignore
+    db : Any = plyvel.DB( str(path.joinpath(args.leveldb)) ) # type: ignore
 
     n,f = runHealth(con)
     logger.info(f"total visits: {n}, failed/incomplete visits: {f}. Success percentage: {round(100* (1 - f/n)) }%")
