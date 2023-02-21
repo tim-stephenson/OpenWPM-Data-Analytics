@@ -9,14 +9,22 @@ from runHealth import runHealth
 
 import argparse
 
+import importlib
+
 from utils import GenerateLogger, all_analyzers, get_all_symmetric_differences, load_cache, store_to_cache, run_analyzers
 
+import sys
+
 if __name__ == '__main__':
+
     parser: argparse.ArgumentParser = argparse.ArgumentParser()
     parser.add_argument("path",  help="path of datadir directory",)
     parser.add_argument('--leveldb', type=str, action='store',
         help='Name of LevelDB created by OpenWPM', default='leveldb')
     parser.add_argument("--from_cache", help="use analysis data from previous run", action="store_true")
+    parser.add_argument('--analyzers', type=str, action='store',
+        help='Comma-separated list of names of analyzer classes to use', 
+        default=None)
     args: argparse.Namespace = parser.parse_args()
 
     path : Path = Path(args.path)
@@ -35,7 +43,23 @@ if __name__ == '__main__':
     n,f = runHealth(con)
     logger.info(f"total visits: {n}, failed/incomplete visits: {f}. Success percentage: {round(100* (1 - f/n)) }%")
 
-    analyzer_objects: List[Analyzer] = all_analyzers(con,db,logger)
+    if args.analyzers is None:
+        analyzer_objects: List[Analyzer] = all_analyzers(con,db,logger)
+    else:
+        analyzer_classes = args.analyzers.split(',')
+        mods_classes = \
+            [c.rpartition('.') for c in analyzer_classes]
+        analyzer_objects : List[Analyzer] = []
+        for mc in mods_classes:
+            print(mc)
+            if mc[0] != '':
+                m = importlib.import_module(mc[0])
+                analyzer_objects.append(
+                    getattr(m, mc[2])(con, db, logger)
+                )
+            else:
+                analyzer_objects.append(globals()[mc[2]](con, db, logger))
+
     if cached_results is not None:
         load_cache(analyzer_objects, cached_results)
     else:
