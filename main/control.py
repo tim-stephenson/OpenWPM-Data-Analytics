@@ -1,7 +1,7 @@
 import logging
 import sqlite3
 from typing import Dict, List, Any, Tuple
-import plyvel
+import plyvel #type: ignore
 from pathlib import Path
 import json
 from analyzers.analyzer import Analyzer
