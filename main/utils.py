@@ -1,9 +1,9 @@
-
-
+import importlib
 import itertools
 from pathlib import Path
 import logging
 import sqlite3
+from types import ModuleType
 from typing import Any, Dict, List, Set, TextIO, Tuple, Type
 from analyzers.analyzer import Analyzer
 
@@ -39,7 +39,8 @@ def GenerateLogger(filename : Path) -> logging.Logger:
     logger.setLevel(logging.DEBUG)
 
     formatter: logging.Formatter = logging.Formatter("%(asctime)s - (%(filename)s:%(lineno)d) - %(levelname)s\n%(message)s")
-    
+    formatter.default_time_format = '%Y-%m-%d %H:%M:%S'
+    formatter.default_msec_format = '%s.%03d'
 
     ch: logging.StreamHandler[TextIO] = logging.StreamHandler()
     ch.setFormatter(formatter)
@@ -52,6 +53,22 @@ def GenerateLogger(filename : Path) -> logging.Logger:
 
 def all_analyzers(con : sqlite3.Connection, db : Any, logger : logging.Logger) -> List[Analyzer]:
     return [ analyzer(con,db,logger) for analyzer in Analyzers ]
+
+
+def analyzers_from_class_names(class_names : List[str], con : sqlite3.Connection, db : Any, logger : logging.Logger)-> List[Analyzer]:
+        mods_classes: list[tuple[str, str, str]] = \
+        [c.rpartition('.') for c in class_names]
+        analyzer_objects : List[Analyzer] = []
+        for mc in mods_classes:
+            logger.info(mc)
+            if mc[0] != '':
+                m: ModuleType = importlib.import_module(mc[0])
+                analyzer_objects.append(
+                    getattr(m, mc[2])(con, db, logger)
+                )
+            else:
+                analyzer_objects.append(globals()[mc[2]](con, db, logger))
+        return analyzer_objects
 
 def run_analyzers(analyzer_objects : List[Analyzer]) -> None:
     for analyzer  in analyzer_objects:
