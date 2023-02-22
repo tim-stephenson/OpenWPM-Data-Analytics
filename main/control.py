@@ -55,3 +55,9 @@ if __name__ == '__main__':
     if cached_results is None:
         with open(path.joinpath("analysis_results.json"),"w") as results_fp:
             json.dump(store_to_cache(analyzer_objects),results_fp, indent=4)
+
+    
+    def fun2(i : int) -> str:
+        return i + 1
+    
+    print(fun2("1"), fun2(1))
