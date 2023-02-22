@@ -15,4 +15,6 @@ jobs:
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
+      - name: pyright type check
+        uses: jakebailey/pyright-action@v1
       - run: echo "🍏 This job's status is ${{ job.status }}."
