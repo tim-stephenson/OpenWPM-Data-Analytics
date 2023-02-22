@@ -2,5 +2,7 @@
     "reportShadowedImports" : "information",
     "reportMissingTypeStubs" : "information",
     "useLibraryCodeForTypes" : true,
-    "typeCheckingMode" : "strict"
+    "typeCheckingMode" : "strict",
+    "pythonVersion": "3.11",
+    "pythonPlatform": "Linux"
 }
