@@ -57,7 +57,3 @@ if __name__ == '__main__':
             json.dump(store_to_cache(analyzer_objects),results_fp, indent=4)
 
     
-    def fun2(i : int) -> str:
-        return i + 1
-    
-    print(fun2("1"), fun2(1))
