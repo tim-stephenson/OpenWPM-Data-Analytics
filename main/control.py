@@ -9,12 +9,19 @@ from runHealth import runHealth
 
 import argparse
 
-from utils import GenerateLogger, all_analyzers, get_all_symmetric_differences, load_cache, store_to_cache, run_analyzers
+
+from utils import GenerateLogger, all_analyzers, analyzers_from_class_names, get_all_symmetric_differences, load_cache, store_to_cache, run_analyzers
 
 if __name__ == '__main__':
+
     parser: argparse.ArgumentParser = argparse.ArgumentParser()
-    parser.add_argument("path",  help="path of datadir directory",)
+    parser.add_argument("path", type=str , help="path of datadir directory", action="store")
+    parser.add_argument('--leveldb', type=str, action='store',
+        help='Name of LevelDB created by OpenWPM', default='leveldb')
     parser.add_argument("--from_cache", help="use analysis data from previous run", action="store_true")
+    parser.add_argument('--analyzers', type=str, action='store',
+        help='Comma-separated list of names of analyzer classes to use', 
+        default=None)
     args: argparse.Namespace = parser.parse_args()
 
     path : Path = Path(args.path)
@@ -28,12 +35,16 @@ if __name__ == '__main__':
             logger.warning("Program was run with '--from-cache' yet no cache exits. Program is ignoring --from-cache flag.")
     
     con : sqlite3.Connection = sqlite3.connect( str(path.joinpath("crawl-data.sqlite")) )
-    db : Any = plyvel.DB( str(path.joinpath("leveldb")) ) # type: ignore
+    db : Any = plyvel.DB( str(path.joinpath(args.leveldb)) ) # type: ignore
 
     n,f = runHealth(con)
     logger.info(f"total visits: {n}, failed/incomplete visits: {f}. Success percentage: {round(100* (1 - f/n)) }%")
 
-    analyzer_objects: List[Analyzer] = all_analyzers(con,db,logger)
+    if args.analyzers is None:
+        analyzer_objects: List[Analyzer] = all_analyzers(con,db,logger)
+    else:
+        analyzer_objects: List[Analyzer] = analyzers_from_class_names(str(args.analyzers).split(','), con,db,logger)
+
     if cached_results is not None:
         load_cache(analyzer_objects, cached_results)
     else:
@@ -44,26 +55,3 @@ if __name__ == '__main__':
     if cached_results is None:
         with open(path.joinpath("analysis_results.json"),"w") as results_fp:
             json.dump(store_to_cache(analyzer_objects),results_fp, indent=4)
-        
-
-
-
-
-    # for method in FingerprintingMethods:
-    #     join : Set[Identifier] = DynamicResults[method].intersection(StaticResults[method]) #type: ignore
-    #     logger.info(f"""Fingerprinting method: {method}, 
-    #     in terms of pairs of (visit_id,script_url), 
-    #     dynamically classified: {len(DynamicResults[method])}
-    #     statically classified: {len(StaticResults[method])}
-    #     intersection: {len(join)}
-    #     total dynamically analyzed: {DA.total_identifiers()} 
-    #     total statically analyzed: {SA.total_identifiers()} 
-    #     """)
-    #     join : Set[str] = DynamicResults_by_visit_id[method].intersection( StaticResults_by_visit_id[method])
-    #     logger.info(f"""Fingerprinting method: {method}, 
-    #     in terms of visit_id only, 
-    #     dynamically classified: {len(DynamicResults_by_visit_id[method])}
-    #     statically classified: {len(StaticResults_by_visit_id[method])}
-    #     intersection: {len(join)}
-    #     total visits: {n}
-    #     """)
