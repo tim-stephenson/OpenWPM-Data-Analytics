@@ -10,10 +10,9 @@ jobs:
       #   uses: jakebailey/pyright-action@v1
       - name : micromamba install
         run : bash -i scripts/micromamba-install.sh
-      - name: install & activate environment
-        run : source ~/.bashrc
-        run : eval "$(micromamba shell hook --shell=bash)"
-        run : micromamba create -f environment.yaml
-        run : micromamba activate openwpmdata
+      - name : install environment
+        run: bash -i scripts/install.sh
+      - name: activate environment
+        run : source ~/.bashrc; eval "$(micromamba shell hook --shell=bash)"; micromamba activate openwpmdata
       - name : pyright Typecheck
         run : pyright
