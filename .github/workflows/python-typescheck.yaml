@@ -12,7 +12,7 @@ jobs:
         run : bash -i scripts/micromamba-install.sh
       - name : install environment
         run: bash -i scripts/install.sh
-      - name: activate environment
-        run : source ~/.bashrc; eval "$(micromamba shell hook --shell=bash)"; micromamba activate openwpmdata
+      # - name: activate environment
+      #   run : source ~/.bashrc; eval "$(micromamba shell hook --shell=bash)"; micromamba activate openwpmdata
       - name : pyright Typecheck
-        run : pyright
+        run : bash -i scripts/pyright-run.sh
