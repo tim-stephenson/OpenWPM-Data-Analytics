@@ -12,4 +12,5 @@ dependencies:
   - SQLAlchemy >=1.4.46, <2
   - pyright >=1.1.295,
   - scikit-learn >=1.2.1
+  - pandas-stubs >=1.5.3.230214
   

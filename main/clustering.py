@@ -14,7 +14,7 @@ def clusters(analyzer_objects : List[Analyzer], logger : logging.Logger) -> None
     for analyzer in analyzer_objects:
         for value in analyzer.get_analysis_results():
             df[analyzer.analysis_name()].loc[value] = True #type: ignore
-    # logger.info(str(df))
+    logger.info(str(df))
     model: KMeans = KMeans(algorithm="elkan",n_clusters=20, random_state=0,max_iter=1000, n_init=10) #type: ignore
     fit: KMeans = model.fit(df) #type: ignore
 
@@ -34,9 +34,9 @@ def clusters(analyzer_objects : List[Analyzer], logger : logging.Logger) -> None
         counts[l] += 1 #type: ignore
     logger.info(f"counts: {counts}")
 
-    results : List[ Tuple[ Dict[ str, float ] ] ] = []
+    results : List[ Tuple[ Dict[ str, float ], int ] ] = []
     for idx, center in enumerate(fit.cluster_centers_): #type: ignore
-        results.append( ( {  fit.feature_names_in_[i] : center[i] for i in range(len(center))  }, counts[idx] ) )
+        results.append( ( {  fit.feature_names_in_[i] : center[i] for i in range(len(center))  }, counts[idx] ) ) #type: ignore
     
     results.sort(key = lambda v : v[1])
     logger.info(json.dumps(results,  indent=4))
