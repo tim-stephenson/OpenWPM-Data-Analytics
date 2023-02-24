@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Set, TextIO, Tuple, Type
 from analyzers.analyzer import Analyzer
 
 
+
 from analyzers.static_analyzers.canvas_1m_static import Canvas_1M_Static
 from analyzers.static_analyzers.canvas_font_1m_static import Canvas_Font_1M_Static
 from analyzers.static_analyzers.webrtc_1m_static import WebRTC_1M_Static
@@ -95,6 +96,9 @@ def compare(analyzer1 : Analyzer, analyzer2 : Analyzer , logger : logging.Logger
         classified by {analyzer2.analysis_name()} : {len(analyzer2.get_analysis_results())} / {analyzer2.analysis_domain_size()}
         intersection : {len(intersection_classified)} / {len(intersection_domain)}
         """)
+
+
+
 
 
 def load_cache(analyzer_objects : List[Analyzer], cached_results : Dict[str, List[Tuple[str, str]]]) -> None:

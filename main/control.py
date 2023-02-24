@@ -5,12 +5,13 @@ import plyvel #type: ignore
 from pathlib import Path
 import json
 from analyzers.analyzer import Analyzer
+from clustering import clusters
 from runHealth import runHealth
 
 import argparse
 
 
-from utils import GenerateLogger, all_analyzers, analyzers_from_class_names, get_all_symmetric_differences, load_cache, store_to_cache, run_analyzers
+from utils import GenerateLogger, all_analyzers, analyzers_from_class_names, load_cache, store_to_cache, run_analyzers
 
 if __name__ == '__main__':
 
@@ -50,7 +51,8 @@ if __name__ == '__main__':
     else:
         run_analyzers(analyzer_objects)
 
-    get_all_symmetric_differences(analyzer_objects, logger)
+    # get_all_symmetric_differences(analyzer_objects, logger)
+    clusters(analyzer_objects,logger)
 
     if cached_results is None:
         with open(path.joinpath("analysis_results.json"),"w") as results_fp:
