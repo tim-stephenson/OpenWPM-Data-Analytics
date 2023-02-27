@@ -11,28 +11,33 @@ from analyzers.static_analyzers.canvas_font_1m_static import Canvas_Font_1M_Stat
 from analyzers.static_analyzers.webrtc_1m_static import WebRTC_1M_Static
 from analyzers.static_analyzers.webgl_static import WebGL_Static
 from analyzers.static_analyzers.media_queries_static import Media_Queries_Static
+from analyzers.static_analyzers.navigator_properties_static import Navigator_Properties_Static
 
 from analyzers.dynamic_analyzers.canvas_1m_dynamic import Canvas_1M_Dynamic
 from analyzers.dynamic_analyzers.canvas_font_1m_dynamic import Canvas_Font_1M_Dynamic
 from analyzers.dynamic_analyzers.webrtc_1m_dynamic import WebRTC_1M_Dynamic
 from analyzers.dynamic_analyzers.webgl_dynamic import WebGL_Dynamic
 from analyzers.dynamic_analyzers.media_queries_dynamic import Media_Queries_Dynamic
+from analyzers.dynamic_analyzers.navigator_properties_dynamic import Navigator_Properties_Dynamic
 
 Canvas_1M_Static : Type[Analyzer] = Canvas_1M_Static
 Canvas_Font_1M_Static : Type[Analyzer] = Canvas_Font_1M_Static
 WebRTC_1M_Static : Type[Analyzer] = WebRTC_1M_Static
 WebGL_Static : Type[Analyzer] = WebGL_Static
 Media_Queries_Static : Type[Analyzer]  = Media_Queries_Static
+Navigator_Properties_Dynamic : Type[Analyzer]  = Navigator_Properties_Dynamic
 
 Canvas_1M_Dynamic : Type[Analyzer] = Canvas_1M_Dynamic
 Canvas_Font_1M_Dynamic : Type[Analyzer] = Canvas_Font_1M_Dynamic
 WebRTC_1M_Dynamic : Type[Analyzer] = WebRTC_1M_Dynamic
 WebGL_Dynamic : Type[Analyzer] = WebGL_Dynamic
 Media_Queries_Dynamic : Type[Analyzer]  = Media_Queries_Dynamic
+Navigator_Properties_Static : Type[Analyzer]  = Navigator_Properties_Static
+
 
 Analyzers : List[Type[Analyzer]] = [
-    Canvas_1M_Static,Canvas_Font_1M_Static,WebRTC_1M_Static,WebGL_Static,Media_Queries_Static,
-    Canvas_1M_Dynamic,Canvas_Font_1M_Dynamic,WebRTC_1M_Dynamic,WebGL_Dynamic,Media_Queries_Dynamic
+    Canvas_1M_Static,Canvas_Font_1M_Static,WebRTC_1M_Static,WebGL_Static,Media_Queries_Static,Navigator_Properties_Dynamic,
+    Canvas_1M_Dynamic,Canvas_Font_1M_Dynamic,WebRTC_1M_Dynamic,WebGL_Dynamic,Media_Queries_Dynamic,Navigator_Properties_Static
 ]
 
 
