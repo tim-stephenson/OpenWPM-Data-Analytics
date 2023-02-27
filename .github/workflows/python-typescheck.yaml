@@ -6,13 +6,9 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      # - name: pyright type check
-      #   uses: jakebailey/pyright-action@v1
       - name : micromamba install
         run : bash -i scripts/micromamba-install.sh
       - name : install environment
         run: bash -i scripts/install.sh
-      # - name: activate environment
-      #   run : source ~/.bashrc; eval "$(micromamba shell hook --shell=bash)"; micromamba activate openwpmdata
       - name : pyright Typecheck
-        run : bash -i scripts/pyright-run.sh
+        run : bash scripts/pyright-run.sh
