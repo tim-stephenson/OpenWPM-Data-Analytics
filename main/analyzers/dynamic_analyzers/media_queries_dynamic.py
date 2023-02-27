@@ -27,8 +27,8 @@ class Media_Queries_Dynamic(Dynamic_Analyzer):
         try:
             match row["symbol"]:
                 case 'window.matchMedia':
-                    if len(parsedArguments) == 1:
-                        self.__found_keywords.update( grepForKeywords(self.__keywords,parsedArguments[0]) )
+                    if len(parsedArguments) == 1 and type(parsedArguments[0]) == str:
+                        self.__found_keywords.update( grepForKeywords(self.__keywords, parsedArguments[0]) )
                 case _:
                     pass
         except Exception as e:
