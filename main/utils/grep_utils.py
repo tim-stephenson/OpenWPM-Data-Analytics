@@ -1,13 +1,13 @@
 
 import re
-from typing import Dict, List
+from typing import Set, List
 
 
-def grepForKeywords(keywords : List[str],  s : str) -> Dict[str, bool]:
-    results : Dict[str, bool] = { keyword : False for keyword in keywords}
+def grepForKeywords(keywords : List[str],  s : str) -> Set[str]:
+    results : Set[str] = set()
     for keyword in keywords:
         if re.search(re.escape(keyword),s) is not None:
-            results[keyword] = True
+            results.add(keyword)
     return results
 
 # def compile_regex_from_keywords(keywords : List[str]) -> re.Pattern[str]:

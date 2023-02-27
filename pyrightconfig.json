@@ -4,6 +4,5 @@
     "useLibraryCodeForTypes" : true,
     "typeCheckingMode" : "strict",
     "pythonVersion": "3.11",
-    "pythonPlatform": "Linux",
-    "exclude": ["main/clustering.py"]
+    "pythonPlatform": "Linux"
 }

@@ -1,56 +1,40 @@
 import importlib
 import itertools
-from pathlib import Path
 import logging
 import sqlite3
 from types import ModuleType
-from typing import Any, Dict, List, Set, TextIO, Tuple, Type
+from typing import Any, Dict, List, Set, Tuple, Type
 from analyzers.analyzer import Analyzer
-
-
 
 from analyzers.static_analyzers.canvas_1m_static import Canvas_1M_Static
 from analyzers.static_analyzers.canvas_font_1m_static import Canvas_Font_1M_Static
 from analyzers.static_analyzers.webrtc_1m_static import WebRTC_1M_Static
 from analyzers.static_analyzers.webgl_static import WebGL_Static
+from analyzers.static_analyzers.media_queries_static import Media_Queries_Static
 
 from analyzers.dynamic_analyzers.canvas_1m_dynamic import Canvas_1M_Dynamic
 from analyzers.dynamic_analyzers.canvas_font_1m_dynamic import Canvas_Font_1M_Dynamic
 from analyzers.dynamic_analyzers.webrtc_1m_dynamic import WebRTC_1M_Dynamic
 from analyzers.dynamic_analyzers.webgl_dynamic import WebGL_Dynamic
+from analyzers.dynamic_analyzers.media_queries_dynamic import Media_Queries_Dynamic
 
 Canvas_1M_Static : Type[Analyzer] = Canvas_1M_Static
 Canvas_Font_1M_Static : Type[Analyzer] = Canvas_Font_1M_Static
 WebRTC_1M_Static : Type[Analyzer] = WebRTC_1M_Static
 WebGL_Static : Type[Analyzer] = WebGL_Static
+Media_Queries_Static : Type[Analyzer]  = Media_Queries_Static
 
 Canvas_1M_Dynamic : Type[Analyzer] = Canvas_1M_Dynamic
 Canvas_Font_1M_Dynamic : Type[Analyzer] = Canvas_Font_1M_Dynamic
 WebRTC_1M_Dynamic : Type[Analyzer] = WebRTC_1M_Dynamic
 WebGL_Dynamic : Type[Analyzer] = WebGL_Dynamic
+Media_Queries_Dynamic : Type[Analyzer]  = Media_Queries_Dynamic
 
 Analyzers : List[Type[Analyzer]] = [
-    Canvas_1M_Static,Canvas_Font_1M_Static,WebRTC_1M_Static,WebGL_Static,
-    Canvas_1M_Dynamic,Canvas_Font_1M_Dynamic,WebRTC_1M_Dynamic,WebGL_Dynamic
+    Canvas_1M_Static,Canvas_Font_1M_Static,WebRTC_1M_Static,WebGL_Static,Media_Queries_Static,
+    Canvas_1M_Dynamic,Canvas_Font_1M_Dynamic,WebRTC_1M_Dynamic,WebGL_Dynamic,Media_Queries_Dynamic
 ]
 
-
-def GenerateLogger(filename : Path) -> logging.Logger:
-    logger: logging.Logger = logging.getLogger('analysis')
-    logger.setLevel(logging.DEBUG)
-
-    formatter: logging.Formatter = logging.Formatter("%(asctime)s - (%(filename)s:%(lineno)d) - %(levelname)s\n%(message)s")
-    formatter.default_time_format = '%Y-%m-%d %H:%M:%S'
-    formatter.default_msec_format = '%s.%03d'
-
-    ch: logging.StreamHandler[TextIO] = logging.StreamHandler()
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-
-    fh: logging.FileHandler = logging.FileHandler(filename, 'w')
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
-    return logger
 
 def all_analyzers(con : sqlite3.Connection, db : Any, logger : logging.Logger) -> List[Analyzer]:
     return [ analyzer(con,db,logger) for analyzer in Analyzers ]
@@ -96,9 +80,6 @@ def compare(analyzer1 : Analyzer, analyzer2 : Analyzer , logger : logging.Logger
         classified by {analyzer2.analysis_name()} : {len(analyzer2.get_analysis_results())} / {analyzer2.analysis_domain_size()}
         intersection : {len(intersection_classified)} / {len(intersection_domain)}
         """)
-
-
-
 
 
 def load_cache(analyzer_objects : List[Analyzer], cached_results : Dict[str, List[Tuple[str, str]]]) -> None:

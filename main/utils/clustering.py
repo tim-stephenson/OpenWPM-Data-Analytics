@@ -14,7 +14,7 @@ def clusters(analyzer_objects : List[Analyzer], logger : logging.Logger) -> None
     for analyzer in analyzer_objects:
         for value in analyzer.get_analysis_results():
             df[analyzer.analysis_name()].loc[value] = True #type: ignore
-    logger.info(str(df))
+    logger.info(df.to_string(max_rows=5)) #type: ignore
     model: KMeans = KMeans(algorithm="elkan",n_clusters=20, random_state=0,max_iter=1000, n_init=10) #type: ignore
     fit: KMeans = model.fit(df) #type: ignore
 

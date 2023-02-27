@@ -11,4 +11,4 @@ jobs:
       - name : install environment
         run: bash -i scripts/install.sh
       - name : pyright Typecheck
-        run : bash scripts/pyright-run.sh
+        run : bash -i scripts/pyright-run.sh
