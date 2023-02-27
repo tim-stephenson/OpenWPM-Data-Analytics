@@ -1,8 +1,10 @@
-from typing import Dict, List, Any
+from typing import List, Any, Set
 import sqlite3
 import logging
 from analyzers.static_analyzer import Static_Analyzer
-from analyzers.static_analyzers.grep_utils import grepForKeywords
+from utils.grep_utils import grepForKeywords
+
+
 class Canvas_1M_Static(Static_Analyzer):
 
 
@@ -14,9 +16,9 @@ class Canvas_1M_Static(Static_Analyzer):
         return "Canvas"
     
     def _analyze_one(self,source_code : str) -> bool:
-        results: Dict[str, bool] = grepForKeywords(self.__keywords, source_code) 
+        results: Set[str] = grepForKeywords(self.__keywords, source_code) 
 
-        characters : bool = results[".fillText"]
-        colors : bool = results[".fillStyle"]
-        Extraction : bool = results[".toDataURL"] or results[".getImageData"] 
+        characters : bool = results.__contains__(".fillText")
+        colors : bool = results.__contains__(".fillStyle")
+        Extraction : bool = results.__contains__(".toDataURL") or results.__contains__(".getImageData")
         return characters and colors and Extraction

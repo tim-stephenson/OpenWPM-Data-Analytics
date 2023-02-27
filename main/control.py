@@ -5,12 +5,12 @@ import plyvel #type: ignore
 from pathlib import Path
 import json
 from analyzers.analyzer import Analyzer
-from runHealth import runHealth
+from utils.runHealth import runHealth
 
 import argparse
 
-
-from utils import GenerateLogger, all_analyzers, analyzers_from_class_names, get_all_symmetric_differences, load_cache, store_to_cache, run_analyzers
+from utils.utils import GenerateLogger
+from utils.analyzers_utils import all_analyzers, analyzers_from_class_names, load_cache, store_to_cache, run_analyzers, get_all_symmetric_differences
 
 if __name__ == '__main__':
 

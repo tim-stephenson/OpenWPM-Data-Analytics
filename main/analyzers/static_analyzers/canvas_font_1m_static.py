@@ -1,8 +1,8 @@
 import logging
 import sqlite3
-from typing import Dict, Any, List
+from typing import Set, Any, List
 from analyzers.static_analyzer import Static_Analyzer
-from analyzers.static_analyzers.grep_utils import grepForKeywords
+from utils.grep_utils import grepForKeywords
 
 
 class Canvas_Font_1M_Static(Static_Analyzer):
@@ -15,5 +15,5 @@ class Canvas_Font_1M_Static(Static_Analyzer):
         return "Canvas Font"
     
     def _analyze_one(self,source_code : str) -> bool:
-        results: Dict[str, bool] = grepForKeywords(self.__keywords, source_code)
-        return results[".measureText"] and results[".font"]
+        results: Set[str] = grepForKeywords(self.__keywords, source_code)
+        return results.__contains__(".measureText") and results.__contains__(".font")
