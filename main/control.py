@@ -1,17 +1,18 @@
 import logging
 import sqlite3
-from typing import Dict, List, Any, Tuple
+from typing import List, Any
 import plyvel #type: ignore
 from pathlib import Path
-import json
 from analyzers.analyzer import Analyzer
-# from utils.into_table_utils import into_table
+from utils.into_table_utils import analyzerObjects_to_dataframe, dataframe_to_table, dataframe_to_analyzerObjects,table_to_dataframe, TABLE_NAME, table_exists
 from utils.runHealth import runHealth
+from utils.clustering import clusters
 
 import argparse
+import pandas
 
 from utils.utils import GenerateLogger
-from utils.analyzers_utils import all_analyzers, analyzers_from_class_names, load_cache, store_to_cache, run_analyzers, get_all_symmetric_differences
+from utils.analyzers_utils import all_analyzers, analyzers_from_class_names, run_analyzers, get_all_symmetric_differences
 
 if __name__ == '__main__':
 
@@ -27,16 +28,13 @@ if __name__ == '__main__':
 
     path : Path = Path(args.path)
     logger: logging.Logger = GenerateLogger(path.joinpath("analysis.log") )
-    cached_results : None | Dict[str, List[Tuple[str, str]]] = None
-    if args.__getattribute__("from_cache"):
-        try:
-            with open(path.joinpath("analysis_results.json"),"r") as results_fp:
-                cached_results = { k : [tuple(pair) for pair in v] for k,v in dict(json.load(results_fp)).items() }
-        except FileNotFoundError:
-            logger.warning("Program was run with '--from-cache' yet no cache exits. Program is ignoring --from-cache flag.")
-    
     con : sqlite3.Connection = sqlite3.connect( str(path.joinpath("crawl-data.sqlite")) )
     db : Any = plyvel.DB( str(path.joinpath(args.leveldb)) ) # type: ignore
+
+    load_from_cache : bool = args.__getattribute__("from_cache")
+    if load_from_cache and not table_exists(TABLE_NAME,con):
+        load_from_cache = False
+        logger.warning("Program was run with '--from-cache' yet no cache exits. Program is ignoring --from-cache flag.")
 
     n,f = runHealth(con)
     logger.info(f"total visits: {n}, failed/incomplete visits: {f}. Success percentage: {round(100* (1 - f/n)) }%")
@@ -46,15 +44,15 @@ if __name__ == '__main__':
     else:
         analyzer_objects: List[Analyzer] = analyzers_from_class_names(str(args.analyzers).split(','), con,db,logger)
 
-    if cached_results is not None:
-        load_cache(analyzer_objects, cached_results)
+    if load_from_cache:
+        df : pandas.DataFrame =  table_to_dataframe(con)
+        dataframe_to_analyzerObjects(analyzer_objects,df)
     else:
         run_analyzers(analyzer_objects)
+        df : pandas.DataFrame = analyzerObjects_to_dataframe(analyzer_objects)
+        dataframe_to_table(df,con)
 
     get_all_symmetric_differences(analyzer_objects, logger)
-
-    if cached_results is None:
-        with open(path.joinpath("analysis_results.json"),"w") as results_fp:
-            json.dump(store_to_cache(analyzer_objects),results_fp, indent=4)
+    clusters(df,logger)
 
     
