@@ -5,6 +5,7 @@ import plyvel #type: ignore
 from pathlib import Path
 import json
 from analyzers.analyzer import Analyzer
+# from utils.into_table_utils import into_table
 from utils.runHealth import runHealth
 
 import argparse
