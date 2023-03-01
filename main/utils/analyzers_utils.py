@@ -89,7 +89,8 @@ def compare(analyzer1 : Analyzer, analyzer2 : Analyzer , logger : logging.Logger
 
 def load_cache(analyzer_objects : List[Analyzer], cached_results : Dict[str, List[Tuple[str, str]]]) -> None:
     for analyzer in analyzer_objects:
-        analyzer.set_analysis_results(cached_results[analyzer.analysis_name()])
+        if analyzer.analysis_name() in cached_results:
+            analyzer.set_analysis_results(cached_results[analyzer.analysis_name()])
 
 
 def store_to_cache(analyzer_objects : List[Analyzer]) -> Dict[str, List[Tuple[str, str]]]:
