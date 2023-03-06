@@ -46,7 +46,7 @@ def all_analyzers(con : sqlite3.Connection, db : Any, logger : logging.Logger) -
 
 
 def analyzers_from_class_names(class_names : List[str], con : sqlite3.Connection, db : Any, logger : logging.Logger)-> List[Analyzer]:
-        mods_classes: list[tuple[str, str, str]] = \
+        mods_classes: List[Tuple[str, str, str]] = \
         [c.rpartition('.') for c in class_names]
         analyzer_objects : List[Analyzer] = []
         for mc in mods_classes:
@@ -76,8 +76,8 @@ def get_all_symmetric_differences(analyzer_objects : List[Analyzer], logger : lo
             compare(analyzer1,analyzer2,logger)
 
 def compare(analyzer1 : Analyzer, analyzer2 : Analyzer , logger : logging.Logger) -> None:
-        intersection_classified : Set[Tuple[str,str]] = set.intersection( set(analyzer1.get_analysis_results()), analyzer2.get_analysis_results() ) # type: ignore
-        intersection_domain : Set[Tuple[str,str]] = set.intersection( set(analyzer1.analysis_domain()), analyzer2.analysis_domain() ) # type: ignore
+        intersection_classified : Set[Tuple[str,str]] = set(analyzer1.get_analysis_results()).intersection( analyzer2.get_analysis_results() )
+        intersection_domain : Set[Tuple[str,str]] = set(analyzer1.analysis_domain()).intersection( analyzer2.analysis_domain() ) 
         
         logger.info(f"""
         Fingerprinting method: {analyzer1.fingerprinting_type()}, 
