@@ -8,12 +8,14 @@ import plyvel #type: ignore
 from sqlalchemy.engine import Engine
 from sqlalchemy.sql import Select
 from sqlalchemy import  Table, MetaData, select, create_engine
+from utils.dump_source_code import dump_from_identifier_list
 from utils.utils import GenerateLogger
+import datetime
 
 from utils.into_table_utils import column_exists, table_exists, PROTECTED_TABLE_NAMES
 
 def from_requirements(table : Table, where__clause_requirements : Dict[str,Any]) -> Select[Any] :
-    stmt: Select[Any] = select(table).where(
+    stmt: Select[Any] = select(table.c["visit_id","script_url"]).where(
         *[table.c.__getitem__(k) == v for k,v in where__clause_requirements.items()])
     return stmt
 
@@ -36,7 +38,7 @@ if __name__ == '__main__':
 
 
     path : Path = Path(args.path).resolve(strict=True)
-    logger: logging.Logger = GenerateLogger(path.joinpath("analysis.log") )
+    logger: logging.Logger = GenerateLogger(path.joinpath("view_results.log") )
     engine : Engine = create_engine(f"""sqlite:///{path.joinpath("crawl-data.sqlite")}""")
     db : Any = plyvel.DB( str(path.joinpath(args.leveldb)) ) #type: ignore
     table_name : str = args.table_name
@@ -56,21 +58,24 @@ The table names used by OpenWPM:\n{PROTECTED_TABLE_NAMES}""")
             sys.exit(1)
 
 
+    
 
     metadata_obj: MetaData = MetaData()
+    metadata_obj.reflect(engine)
     with engine.connect() as conn:
 
-        both: List[Tuple[str,str]] = conn.execute(from_requirements(metadata_obj.tables[table_name], 
-            {analyses[0] : 1, analyses[1] : 1} ) ).fetchall()  # type: ignore
+        both: List[Tuple[str,str]] = [ tuple(row) for row in conn.execute(from_requirements(metadata_obj.tables[table_name], 
+            {analyses[0] : 1, analyses[1] : 1} ) ).fetchall()]
         
-        just_1: List[Tuple[str,str]] = conn.execute(from_requirements(metadata_obj.tables[table_name], 
-            {analyses[0] : 1, analyses[1] : 0} ) ).fetchall()  # type: ignore
+        just_1: List[Tuple[str,str]] = [ tuple(row) for row in conn.execute(from_requirements(metadata_obj.tables[table_name], 
+            {analyses[0] : 1, analyses[1] : 0} ) ).fetchall()]
         
-        just_2: List[Tuple[str,str]] = conn.execute(from_requirements(metadata_obj.tables[table_name], 
-            {analyses[0] : 0, analyses[1] : 1} ) ).fetchall()  # type: ignore
+        just_2: List[Tuple[str,str]] = [ tuple(row) for row in conn.execute(from_requirements(metadata_obj.tables[table_name], 
+            {analyses[0] : 0, analyses[1] : 1} ) ).fetchall()]
+        print(just_2)
         
-        neither: List[Tuple[str,str]] = conn.execute(from_requirements(metadata_obj.tables[table_name], 
-            {analyses[0] : 0, analyses[1] : 0} ) ).fetchall()  # type: ignore
+        neither: List[Tuple[str,str]] = [ tuple(row) for row in conn.execute(from_requirements(metadata_obj.tables[table_name], 
+            {analyses[0] : 0, analyses[1] : 0} ) ).fetchall()]
         
 
 
@@ -80,8 +85,15 @@ The table names used by OpenWPM:\n{PROTECTED_TABLE_NAMES}""")
     {len(just_2)}
     {len(neither)}
     """)
-    # dump_source_code_path: Path = path.joinpath(f"temp-{datetime.datetime.now().replace(microsecond=0).isoformat()}")
-    # dump_source_code_path.mkdir()
+
+
+    dump_source_code_path: Path = path.joinpath(f"temp-{datetime.datetime.now().replace(microsecond=0).isoformat()}")
+    dump_source_code_path.mkdir()
+    for id_lst, dir_path in [(both,dump_source_code_path.joinpath("both")),
+                          (just_1,dump_source_code_path.joinpath(analyses[0])),
+                            (just_2,dump_source_code_path.joinpath(analyses[1]))]:
+        dir_path.mkdir()
+        dump_from_identifier_list(id_lst,engine,db,dir_path)
 
 
 
