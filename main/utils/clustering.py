@@ -1,5 +1,5 @@
 from typing import List, Tuple, Dict
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans  #type: ignore
 # from analyzers.analyzer import Analyzer
 import logging
 import pandas

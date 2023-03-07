@@ -1,6 +1,6 @@
 import collections
 import logging
-import sqlite3
+from sqlalchemy.engine import Engine
 from typing import Any, Set
 from analyzers.dynamic_analyzer import Dynamic_Analyzer
 
@@ -8,10 +8,10 @@ from analyzers.dynamic_analyzer import Dynamic_Analyzer
 
 class Navigator_Properties_Dynamic(Dynamic_Analyzer):
     
-    def __init__(self, con : sqlite3.Connection, db : Any, logger : logging.Logger) -> None:
+    def __init__(self, engine : Engine, db : Any, logger : logging.Logger) -> None:
         self.__properties : Set[str] = set(["window.navigator.storage.estimate","window.navigator.mediaDevices.enumerateDevices", 
                                          "window.navigator.hardwareConcurrency","window.navigator.language","window.navigator.maxTouchPoints"])
-        super().__init__(con,db,logger)
+        super().__init__(engine,db,logger)
 
     def fingerprinting_type(self) -> str:
         return "Navigator Properties"

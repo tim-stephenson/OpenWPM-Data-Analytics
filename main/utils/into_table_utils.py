@@ -1,8 +1,9 @@
-import sqlite3
-from typing import Any, FrozenSet, List, Set, Tuple, Final
-
+from sqlalchemy.engine import Engine
+from sqlalchemy import MetaData
+from typing import FrozenSet, List, Set, Tuple, Final
 import pandas
 from analyzers.analyzer import Analyzer
+
 
 PROTECTED_TABLE_NAMES : Final[FrozenSet[str]] = frozenset([
 "task",
@@ -19,28 +20,31 @@ PROTECTED_TABLE_NAMES : Final[FrozenSet[str]] = frozenset([
 "incomplete_visits",
 "dns_responses"])
 
-# Checks if a given table_name exists in a sqlite3 database
-def table_exists(table_name : str, con : sqlite3.Connection) -> bool:
-    query_response: sqlite3.Cursor = con.execute("""
-            SELECT name 
-            FROM sqlite_master
-            WHERE type='table' AND name=?
-        """,[table_name])
-    result : Any = query_response.fetchone()
-    return result is not None and result[0] == table_name
+# Checks if a given table_name exists in a sql database
+def table_exists(table_name : str, engine : Engine) -> bool:
+    metadata_obj: MetaData = MetaData()
+    metadata_obj.reflect(engine)
+    return metadata_obj.tables.__contains__(table_name)
+
+
+# Checks that a column exists in a given table.
+def column_exists(table_name : str, column_name : str, engine : Engine) -> bool:
+    metadata_obj: MetaData = MetaData()
+    metadata_obj.reflect(engine)
+    if metadata_obj.tables.__contains__(table_name):
+        if metadata_obj.tables[table_name].c.__contains__(column_name):
+            return True
+    return False
 
 # Taking the resulting fingerprinting analysis results, in a pandas dataframe as input, 
-# saves that analysis data to the sqlite3 table, analysis_results
-def dataframe_to_table(df : pandas.DataFrame,con : sqlite3.Connection, table_name : str) -> None:
-     df.to_sql(table_name,con,if_exists="replace",index_label=["visit_id","script_url"] )
+# saves that analysis data to the sql table, analysis_results
+def dataframe_to_table(df : pandas.DataFrame,engine : Engine, table_name : str) -> None:
+     df.to_sql(table_name,engine,if_exists="replace",index_label=["visit_id","script_url"] )
 
 # Loads the fingerprinting analysis results from the analysis_results table into
 # a pandas dataframe
-def table_to_dataframe(con : sqlite3.Connection, table_name : str) -> pandas.DataFrame:
-    return pandas.read_sql(f"""
-    SELECT *
-    FROM {table_name}
-    """,con,["visit_id","script_url"])
+def table_to_dataframe(engine : Engine, table_name : str) -> pandas.DataFrame:
+    return pandas.read_sql_table(table_name,engine,index_col=["visit_id","script_url"])
 
 
 def analyzerObjects_to_dataframe(analyzer_objects : List[Analyzer]) -> pandas.DataFrame:

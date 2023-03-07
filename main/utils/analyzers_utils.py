@@ -1,7 +1,7 @@
 import importlib
 import itertools
 import logging
-import sqlite3
+from sqlalchemy.engine import Engine
 from types import ModuleType
 from typing import Any, Dict, List, Set, Tuple, Type
 from analyzers.analyzer import Analyzer
@@ -41,11 +41,11 @@ Analyzers : List[Type[Analyzer]] = [
 ]
 
 
-def all_analyzers(con : sqlite3.Connection, db : Any, logger : logging.Logger) -> List[Analyzer]:
-    return [ analyzer(con,db,logger) for analyzer in Analyzers ]
+def all_analyzers(engine : Engine, db : Any, logger : logging.Logger) -> List[Analyzer]:
+    return [ analyzer(engine,db,logger) for analyzer in Analyzers ]
 
 
-def analyzers_from_class_names(class_names : List[str], con : sqlite3.Connection, db : Any, logger : logging.Logger)-> List[Analyzer]:
+def analyzers_from_class_names(class_names : List[str], engine : Engine, db : Any, logger : logging.Logger)-> List[Analyzer]:
         mods_classes: List[Tuple[str, str, str]] = \
         [c.rpartition('.') for c in class_names]
         analyzer_objects : List[Analyzer] = []
@@ -54,10 +54,10 @@ def analyzers_from_class_names(class_names : List[str], con : sqlite3.Connection
             if mc[0] != '':
                 m: ModuleType = importlib.import_module(mc[0])
                 analyzer_objects.append(
-                    getattr(m, mc[2])(con, db, logger)
+                    getattr(m, mc[2])(engine, db, logger)
                 )
             else:
-                analyzer_objects.append(globals()[mc[2]](con, db, logger))
+                analyzer_objects.append(globals()[mc[2]](engine, db, logger))
         return analyzer_objects
 
 def run_analyzers(analyzer_objects : List[Analyzer]) -> None:

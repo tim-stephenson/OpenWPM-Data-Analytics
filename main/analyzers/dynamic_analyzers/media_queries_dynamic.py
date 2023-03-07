@@ -1,5 +1,5 @@
 import logging
-import sqlite3
+from sqlalchemy.engine import Engine
 from typing import Any, List, Set
 from analyzers.dynamic_analyzer import Dynamic_Analyzer, parseArguments
 from utils.grep_utils import grepForKeywords
@@ -7,10 +7,10 @@ from utils.grep_utils import grepForKeywords
 
 class Media_Queries_Dynamic(Dynamic_Analyzer):
     
-    def __init__(self, con : sqlite3.Connection, db : Any, logger : logging.Logger) -> None:
+    def __init__(self, engine : Engine, db : Any, logger : logging.Logger) -> None:
         self.__keywords : List[str] = ["dynamic-range", "video-dynamic-range","prefers-color-scheme","prefers-reduced-motion","any-hover",
                                        "color-gamut","forced-colors","inverted-colors", "prefers-contrast"]
-        super().__init__(con,db,logger)
+        super().__init__(engine,db,logger)
 
     def fingerprinting_type(self) -> str:
         return "Media Queries"
