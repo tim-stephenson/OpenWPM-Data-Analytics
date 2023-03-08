@@ -3,5 +3,6 @@
 eval "$(micromamba shell hook --shell=bash)"
 micromamba activate openwpmdata
 
-cd main
+pushd main
 python control.py "$@"
+popd

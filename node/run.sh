@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/base
 
 cd "$(dirname $0)"
 
-eval "$(conda shell.bash hook)"
-conda activate openwpmdata
+eval "$(micromamba shell hook --shell=bash)"
+micromamba activate openwpmdata
 
 $@

@@ -1,6 +1,7 @@
 from pathlib import Path
 import logging
-from typing import TextIO
+from typing import Iterable, TextIO, Callable
+from io import TextIOBase, StringIO
 
 
 def GenerateLogger(filename : Path) -> logging.Logger:
@@ -19,3 +20,53 @@ def GenerateLogger(filename : Path) -> logging.Logger:
     fh.setFormatter(formatter)
     logger.addHandler(fh)
     return logger
+
+# class LoggerInputStream(TextIOBase):
+
+#     def __init__(self, writer : Callable[[str] ,None] ) -> None:
+#         self.__writer: Callable[[str] ,None]  = writer
+    
+#     def fileno(self) -> int:
+#         raise OSError
+
+#     def readable(self) -> bool:
+#         return False
+    
+#     def writable(self) -> bool:
+#         return True
+    
+#     def seekable(self) -> bool:
+#         return False
+    
+#     def writelines(self, lines: Iterable[str]) -> None:
+#         for line in lines:
+#             self.__writer(line)
+        
+#     def write(self, s: str) -> int:
+#         self.__writer(s)
+#         return -1
+    
+#     @property
+#     def encoding(self) -> str:
+#         return "utf-8"
+
+class LoggerInputStream(StringIO):
+   
+    def __init__(self, writer : Callable[[str] ,None] ) -> None:
+        self.__writer : Callable[[str] ,None]  = writer
+        super().__init__("","\n")
+    
+    def fileno(self) -> int:
+        raise OSError
+
+    def writelines(self, lines: Iterable[str]) -> None:
+        for line in lines:
+            self.__writer(line)
+        
+    def write(self, s: str) -> int:
+        self.__writer(s)
+        return len(s)
+    
+    
+
+    

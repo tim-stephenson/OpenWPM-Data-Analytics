@@ -3,14 +3,16 @@ import argparse
 import logging
 from pathlib import Path
 import sys
+import time
 from typing import Any, Dict, List, Tuple
 import plyvel #type: ignore
 from sqlalchemy.engine import Engine
 from sqlalchemy.sql import Select
 from sqlalchemy import  Table, MetaData, select, create_engine
 from utils.dump_source_code import dump_from_identifier_list
-from utils.utils import GenerateLogger
+from utils.utils import GenerateLogger, LoggerInputStream
 import datetime
+import subprocess
 
 from utils.into_table_utils import column_exists, table_exists, PROTECTED_TABLE_NAMES
 
@@ -72,7 +74,6 @@ The table names used by OpenWPM:\n{PROTECTED_TABLE_NAMES}""")
         
         just_2: List[Tuple[str,str]] = [ tuple(row) for row in conn.execute(from_requirements(metadata_obj.tables[table_name], 
             {analyses[0] : 0, analyses[1] : 1} ) ).fetchall()]
-        print(just_2)
         
         neither: List[Tuple[str,str]] = [ tuple(row) for row in conn.execute(from_requirements(metadata_obj.tables[table_name], 
             {analyses[0] : 0, analyses[1] : 0} ) ).fetchall()]
@@ -94,6 +95,21 @@ The table names used by OpenWPM:\n{PROTECTED_TABLE_NAMES}""")
                             (just_2,dump_source_code_path.joinpath(analyses[1]))]:
         dir_path.mkdir()
         dump_from_identifier_list(id_lst,engine,db,dir_path)
+
+
+    process: subprocess.Popen[str] = subprocess.Popen( [
+        "bash","-i","../node/run.sh","npm","run","prettier","--","--ignore-unknown","--no-config","--write",dump_source_code_path
+        ],text=True, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    for line in iter(process.stdout.readline, b""):
+        if line == "":
+            if process.poll() != None:
+                break
+            time.sleep(1)
+        else:
+            logger.info(line)
+
+
+
 
 
 

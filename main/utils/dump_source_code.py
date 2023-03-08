@@ -5,7 +5,6 @@ from typing import Any, List, Tuple, Set
 
 
 def dump_from_content_hash(content_hash : bytes, db : Any, dir : Path) -> None:
-    print(str(content_hash,encoding="ascii") + ".js" )
     with open(dir.joinpath( str(content_hash,encoding="ascii") + ".js" ),"wb") as fp:
         fp.write(db.get(content_hash))
 
@@ -13,7 +12,6 @@ def dump_from_content_hash(content_hash : bytes, db : Any, dir : Path) -> None:
 
 def dump_from_identifier_list(lst : List[Tuple[str,str]], engine : Engine, db : Any, dir : Path) -> None:
     identifier_set: frozenset[Tuple[str, str]] = frozenset(lst)
-    print(lst)
     with engine.connect() as conn:
         query_response : CursorResult[Any] = conn.execute(text("""
             SELECT DISTINCT visit_id, url, content_hash
