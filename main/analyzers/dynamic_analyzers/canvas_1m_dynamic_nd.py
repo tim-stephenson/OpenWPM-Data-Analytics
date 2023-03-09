@@ -26,8 +26,8 @@ def _minwh(b : List[Any], i : int) -> bool :
     height : int = -1
     width : int = -1
 
-    for j in range(i, -1):
-        row = b[i]
+    for j in range(i, -1, -1):
+        row = b[j]
         match (row['symbol'], row['operation']):
             case ('HTMLCanvasElement.height', 'set'):
                 if height == -1 and row['value']:
@@ -37,6 +37,21 @@ def _minwh(b : List[Any], i : int) -> bool :
                     width = float(row['value'])
 
     return (width == -1 or width >= 16) and (height == -1 or height >= 16)
+
+def _prev_color(b : List[Any], i : int) -> str :
+    """
+    _prev_color(b, i) = the color of the last call to
+    `CanvasRenderingContext2D.fillStyle` before row i of b (None if there is no
+    such call).
+    """
+
+    for j in range(i, -1, -1):
+        if (b[j]['symbol'] == 'CanvasRenderingContext2D.fillStyle' and
+                b[j]['value'] == 'set'):
+            return b[j]['value']
+
+    return None
+
 
 class Canvas1MDynamicND(Dynamic_Analyzer):
 
@@ -103,6 +118,28 @@ class Canvas1MDynamicND(Dynamic_Analyzer):
                     args : List[Any] = parseArguments(b[i]['arguments'])
                     if args != [] and _nchars(args[0]) >= 10 and _minwh(b, i):
                         return True
+
+            # Look for two calls to `fillText` or `strokeText` with two
+            # different colors.
+            for i in range(len(b)):
+                if b[i]['symbol'] in [
+                        'CanvasRenderingContext2D.fillText',
+                        'CanvasRenderingContext2D.strokeText']:
+                    color = _prev_color(b, i)
+                    whok = _minwh(b, i)
+
+                    for j in range(i+1, len(b)):
+                        if b[j]['symbol'] in [
+                                'CanvasRenderingContext2D.fillText',
+                                'CanvasRenderingContext2D.strokeText']:
+                            next_color = _prev_color(b, j)
+                            next_whok = _minwh(b, j)
+
+                            if color != next_color and whok and next_whok:
+                                return True
+
+                            break
+
 
         return False
 
