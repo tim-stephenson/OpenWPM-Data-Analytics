@@ -47,7 +47,7 @@ def _prev_color(b : List[Any], i : int) -> str :
 
     for j in range(i, -1, -1):
         if (b[j]['symbol'] == 'CanvasRenderingContext2D.fillStyle' and
-                b[j]['value'] == 'set'):
+                b[j]['operation'] == 'set'):
             return b[j]['value']
 
     return None
@@ -95,6 +95,7 @@ class Canvas1MDynamicND(Dynamic_Analyzer):
         return blocks
 
     def _classify(self) -> bool:
+
         blocks : List[List[Any]]  = self._partition_rows()
 
         for b in blocks:
