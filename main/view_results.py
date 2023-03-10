@@ -1,5 +1,4 @@
 import argparse
-# import datetime
 import logging
 from pathlib import Path
 import sys
@@ -10,7 +9,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.sql import Select
 from sqlalchemy import  Table, MetaData, select, create_engine
 from utils.dump_source_code import dump_from_identifier_list
-from utils.utils import GenerateLogger, LoggerInputStream
+from utils.utils import GenerateLogger
 import datetime
 import subprocess
 
@@ -20,8 +19,6 @@ def from_requirements(table : Table, where__clause_requirements : Dict[str,Any])
     stmt: Select[Any] = select(table.c["visit_id","script_url"]).where(
         *[table.c.__getitem__(k) == v for k,v in where__clause_requirements.items()])
     return stmt
-
-
 
 if __name__ == '__main__':
     parser: argparse.ArgumentParser = argparse.ArgumentParser()
@@ -100,7 +97,7 @@ The table names used by OpenWPM:\n{PROTECTED_TABLE_NAMES}""")
     process: subprocess.Popen[str] = subprocess.Popen( [
         "bash","-i","../node/run.sh","npm","run","prettier","--","--ignore-unknown","--no-config","--write",dump_source_code_path
         ],text=True, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-    for line in iter(process.stdout.readline, b""):
+    for line in iter(process.stdout.readline, b""): #type: ignore
         if line == "":
             if process.poll() != None:
                 break
