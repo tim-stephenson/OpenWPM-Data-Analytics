@@ -17,14 +17,16 @@ class Analyzer(ABC):
         self.logger: logging.Logger = logger
         self.results : None | List[ Tuple[str,str] ] = None
     
-    def analysis_name(self) -> str:
+    @classmethod
+    def analysis_name(cls) -> str:
         """
         returns a unique name among all analyzers representing what analysis is being done
         """
-        return self.__class__.__name__
+        return cls.__name__
     
+    @staticmethod
     @abstractmethod
-    def fingerprinting_type(self) -> str:
+    def fingerprinting_type() -> str:
         """
         returns name of the fingerprinting method this this analyzer is looking for
         """

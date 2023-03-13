@@ -65,7 +65,8 @@ class Canvas1MDynamicND(Dynamic_Analyzer):
         super().__init__(engine, db, logger)
         self._rows : List[Any] = []
 
-    def fingerprinting_type(self) -> str:
+    @staticmethod
+    def fingerprinting_type() -> str:
         return "Canvas"
 
     def _partition_rows(self) -> List[List[Any]] :

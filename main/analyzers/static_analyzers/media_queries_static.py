@@ -14,7 +14,8 @@ class Media_Queries_Static(Static_Analyzer):
                                        "color-gamut","forced-colors","inverted-colors", "prefers-contrast"]
         super().__init__(engine,db,logger)
 
-    def fingerprinting_type(self) -> str:
+    @staticmethod
+    def fingerprinting_type() -> str:
         return "Media Queries"
     
     def _analyze_one(self,source_code : str) -> bool:

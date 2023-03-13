@@ -13,7 +13,8 @@ class Navigator_Properties_Dynamic(Dynamic_Analyzer):
                                          "window.navigator.hardwareConcurrency","window.navigator.language","window.navigator.maxTouchPoints"])
         super().__init__(engine,db,logger)
 
-    def fingerprinting_type(self) -> str:
+    @staticmethod
+    def fingerprinting_type() -> str:
         return "Navigator Properties"
     
     def _classify(self) -> bool:

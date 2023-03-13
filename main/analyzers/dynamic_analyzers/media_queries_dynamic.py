@@ -12,7 +12,8 @@ class Media_Queries_Dynamic(Dynamic_Analyzer):
                                        "color-gamut","forced-colors","inverted-colors", "prefers-contrast"]
         super().__init__(engine,db,logger)
 
-    def fingerprinting_type(self) -> str:
+    @staticmethod
+    def fingerprinting_type() -> str:
         return "Media Queries"
     
     def _classify(self) -> bool:

@@ -12,8 +12,8 @@ class WebRTC_1M_Static(Static_Analyzer):
         self.__keywords : List[str] = [".createDataChannel",".createOffer",".onicecandidate"]
         super().__init__(engine,db,logger)
     
-
-    def fingerprinting_type(self) -> str:
+    @staticmethod
+    def fingerprinting_type() -> str:
         return "WebRTC"
     
     def _analyze_one(self,source_code : str) -> bool:
