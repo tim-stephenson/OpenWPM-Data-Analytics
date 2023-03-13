@@ -66,6 +66,3 @@ The table names used by OpenWPM:\n{PROTECTED_TABLE_NAMES}""")
         dataframe_to_table( merge_dataframes(results_df,previous_results_df), engine,table_name)
     else:
         dataframe_to_table(results_df,engine,table_name)
-
-
-    

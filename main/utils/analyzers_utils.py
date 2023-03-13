@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Set, Tuple, Type
 from analyzers.analyzer import Analyzer
 
 from analyzers.static_analyzers.canvas_1m_static import Canvas_1M_Static
+from analyzers.static_analyzers.canvas_basic_static import Canvas_Basic_Static
 from analyzers.static_analyzers.canvas_font_1m_static import Canvas_Font_1M_Static
 from analyzers.static_analyzers.webrtc_1m_static import WebRTC_1M_Static
 from analyzers.static_analyzers.webgl_static import WebGL_Static
@@ -14,6 +15,7 @@ from analyzers.static_analyzers.media_queries_static import Media_Queries_Static
 from analyzers.static_analyzers.navigator_properties_static import Navigator_Properties_Static
 
 from analyzers.dynamic_analyzers.canvas_1m_dynamic import Canvas_1M_Dynamic
+from analyzers.dynamic_analyzers.canvas_basic_dynamic import Canvas_Basic_Dynamic
 from analyzers.dynamic_analyzers.canvas_1m_dynamic_nd import Canvas1MDynamicND
 from analyzers.dynamic_analyzers.canvas_font_1m_dynamic import Canvas_Font_1M_Dynamic
 from analyzers.dynamic_analyzers.webrtc_1m_dynamic import WebRTC_1M_Dynamic
@@ -23,6 +25,7 @@ from analyzers.dynamic_analyzers.navigator_properties_dynamic import Navigator_P
 
 
 Canvas_1M_Static : Type[Analyzer] = Canvas_1M_Static
+Canvas_Basic_Static : Type[Analyzer] = Canvas_Basic_Static
 Canvas_Font_1M_Static : Type[Analyzer] = Canvas_Font_1M_Static
 WebRTC_1M_Static : Type[Analyzer] = WebRTC_1M_Static
 WebGL_Static : Type[Analyzer] = WebGL_Static
@@ -32,6 +35,7 @@ Navigator_Properties_Static : Type[Analyzer]  = Navigator_Properties_Static
 
 
 Canvas_1M_Dynamic : Type[Analyzer] = Canvas_1M_Dynamic
+Canvas_Basic_Dynamic: Type[Analyzer] = Canvas_Basic_Dynamic
 Canvas1MDynamicND : Type[Analyzer] = Canvas1MDynamicND
 Canvas_Font_1M_Dynamic : Type[Analyzer] = Canvas_Font_1M_Dynamic
 WebRTC_1M_Dynamic : Type[Analyzer] = WebRTC_1M_Dynamic
@@ -42,8 +46,8 @@ Navigator_Properties_Dynamic : Type[Analyzer]  = Navigator_Properties_Dynamic
 
 
 Analyzers : List[Type[Analyzer]] = [
-    Canvas_1M_Static,Canvas_Font_1M_Static,WebRTC_1M_Static,WebGL_Static,Media_Queries_Static,Navigator_Properties_Static,
-    Canvas_1M_Dynamic,Canvas1MDynamicND,Canvas_Font_1M_Dynamic,WebRTC_1M_Dynamic,WebGL_Dynamic,Media_Queries_Dynamic,Navigator_Properties_Dynamic
+    Canvas_1M_Static,Canvas_Basic_Static,Canvas_Font_1M_Static,WebRTC_1M_Static,WebGL_Static,Media_Queries_Static,Navigator_Properties_Static,
+    Canvas_1M_Dynamic,Canvas_Basic_Dynamic,Canvas1MDynamicND,Canvas_Font_1M_Dynamic,WebRTC_1M_Dynamic,WebGL_Dynamic,Media_Queries_Dynamic,Navigator_Properties_Dynamic
 ]
 
 
