@@ -1,5 +1,5 @@
 import logging
-import sqlite3
+from sqlalchemy.engine import Engine
 from typing import Any, List
 
 from analyzers.dynamic_analyzer import Dynamic_Analyzer, parseArguments
@@ -23,11 +23,11 @@ def _minwh(b : List[Any], i : int) -> bool :
     # possible fingerprinting block accesses its own canvas.  Does that
     # match practice?
 
-    height : int = -1
-    width : int = -1
+    height : float = -1
+    width : float = -1
 
     for j in range(i, -1, -1):
-        row = b[j]
+        row : Any = b[j]
         match (row['symbol'], row['operation']):
             case ('HTMLCanvasElement.height', 'set'):
                 if height == -1 and row['value']:
@@ -35,10 +35,12 @@ def _minwh(b : List[Any], i : int) -> bool :
             case ('HTMLCanvasElement.width', 'set'):
                 if width == -1 and row['value']:
                     width = float(row['value'])
+            case (_,_):
+                pass
 
     return (width == -1 or width >= 16) and (height == -1 or height >= 16)
 
-def _prev_color(b : List[Any], i : int) -> str :
+def _prev_color(b : List[Any], i : int) -> str | None :
     """
     _prev_color(b, i) = the color of the last call to
     `CanvasRenderingContext2D.fillStyle` before row i of b (None if there is no
@@ -57,10 +59,10 @@ class Canvas1MDynamicND(Dynamic_Analyzer):
 
     def __init__(
             self,
-            con : sqlite3.Connection,
+            engine : Engine,
             db : Any,
             logger : logging.Logger) -> None:
-        Dynamic_Analyzer.__init__(self, con, db, logger)
+        super().__init__(engine, db, logger)
         self._rows : List[Any] = []
 
     def fingerprinting_type(self) -> str:
@@ -77,7 +79,7 @@ class Canvas1MDynamicND(Dynamic_Analyzer):
         canvas fingerprinting blocks, where we think of each possible block as
         being a sequence of access that ends with a call to `toDataURL`.
         """
-        blocks = [[]]
+        blocks : List[List[Any]]  = [[]]
 
         # Create the partitions.  However, when finished, the last item in b
         # may be a block that does not end with `toDataURL`.
