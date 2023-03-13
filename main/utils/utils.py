@@ -19,3 +19,6 @@ def GenerateLogger(filename : Path) -> logging.Logger:
     fh.setFormatter(formatter)
     logger.addHandler(fh)
     return logger
+    
+
+    

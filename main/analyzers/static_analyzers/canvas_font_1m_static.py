@@ -1,5 +1,5 @@
 import logging
-import sqlite3
+from sqlalchemy.engine import Engine
 from typing import Set, Any, List
 from analyzers.static_analyzer import Static_Analyzer
 from utils.grep_utils import grepForKeywords
@@ -7,9 +7,9 @@ from utils.grep_utils import grepForKeywords
 
 class Canvas_Font_1M_Static(Static_Analyzer):
 
-    def __init__(self, con : sqlite3.Connection, db : Any, logger : logging.Logger) -> None:
+    def __init__(self, engine : Engine, db : Any, logger : logging.Logger) -> None:
         self.__keywords : List[str] = [".measureText", ".font"]
-        super().__init__(con,db,logger)
+        super().__init__(engine,db,logger)
 
     def fingerprinting_type(self) -> str:
         return "Canvas Font"

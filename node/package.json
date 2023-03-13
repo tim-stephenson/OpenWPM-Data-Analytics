@@ -7,12 +7,14 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run build && npm run execute",
     "build": "tsc",
-    "execute": "node build/index.js"
+    "execute": "node build/index.js",
+    "prettier" : "prettier"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "acorn": "^8.8.1"
+    "acorn": "^8.8.1",
+    "prettier": "^2.8.4"
   },
   "type": "module",
   "devDependencies": {

@@ -11,3 +11,10 @@ fi
 
 source ~/.bashrc
 micromamba create -f environment.yaml
+
+eval "$(micromamba shell hook --shell=bash)"
+micromamba activate openwpmdata
+
+pushd node
+npm ci
+popd

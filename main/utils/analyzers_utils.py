@@ -1,7 +1,7 @@
 import importlib
 import itertools
 import logging
-import sqlite3
+from sqlalchemy.engine import Engine
 from types import ModuleType
 from typing import Any, Dict, List, Set, Tuple, Type
 from analyzers.analyzer import Analyzer
@@ -41,12 +41,12 @@ Analyzers : List[Type[Analyzer]] = [
 ]
 
 
-def all_analyzers(con : sqlite3.Connection, db : Any, logger : logging.Logger) -> List[Analyzer]:
-    return [ analyzer(con,db,logger) for analyzer in Analyzers ]
+def all_analyzers(engine : Engine, db : Any, logger : logging.Logger) -> List[Analyzer]:
+    return [ analyzer(engine,db,logger) for analyzer in Analyzers ]
 
 
-def analyzers_from_class_names(class_names : List[str], con : sqlite3.Connection, db : Any, logger : logging.Logger)-> List[Analyzer]:
-        mods_classes: list[tuple[str, str, str]] = \
+def analyzers_from_class_names(class_names : List[str], engine : Engine, db : Any, logger : logging.Logger)-> List[Analyzer]:
+        mods_classes: List[Tuple[str, str, str]] = \
         [c.rpartition('.') for c in class_names]
         analyzer_objects : List[Analyzer] = []
         for mc in mods_classes:
@@ -54,10 +54,10 @@ def analyzers_from_class_names(class_names : List[str], con : sqlite3.Connection
             if mc[0] != '':
                 m: ModuleType = importlib.import_module(mc[0])
                 analyzer_objects.append(
-                    getattr(m, mc[2])(con, db, logger)
+                    getattr(m, mc[2])(engine, db, logger)
                 )
             else:
-                analyzer_objects.append(globals()[mc[2]](con, db, logger))
+                analyzer_objects.append(globals()[mc[2]](engine, db, logger))
         return analyzer_objects
 
 def run_analyzers(analyzer_objects : List[Analyzer]) -> None:
@@ -76,8 +76,8 @@ def get_all_symmetric_differences(analyzer_objects : List[Analyzer], logger : lo
             compare(analyzer1,analyzer2,logger)
 
 def compare(analyzer1 : Analyzer, analyzer2 : Analyzer , logger : logging.Logger) -> None:
-        intersection_classified : Set[Tuple[str,str]] = set.intersection( set(analyzer1.get_analysis_results()), analyzer2.get_analysis_results() ) # type: ignore
-        intersection_domain : Set[Tuple[str,str]] = set.intersection( set(analyzer1.analysis_domain()), analyzer2.analysis_domain() ) # type: ignore
+        intersection_classified : Set[Tuple[str,str]] = set(analyzer1.get_analysis_results()).intersection( analyzer2.get_analysis_results() )
+        intersection_domain : Set[Tuple[str,str]] = set(analyzer1.analysis_domain()).intersection( analyzer2.analysis_domain() ) 
         
         logger.info(f"""
         Fingerprinting method: {analyzer1.fingerprinting_type()}, 
@@ -89,7 +89,8 @@ def compare(analyzer1 : Analyzer, analyzer2 : Analyzer , logger : logging.Logger
 
 def load_cache(analyzer_objects : List[Analyzer], cached_results : Dict[str, List[Tuple[str, str]]]) -> None:
     for analyzer in analyzer_objects:
-        analyzer.set_analysis_results(cached_results[analyzer.analysis_name()])
+        if analyzer.analysis_name() in cached_results:
+            analyzer.set_analysis_results(cached_results[analyzer.analysis_name()])
 
 
 def store_to_cache(analyzer_objects : List[Analyzer]) -> Dict[str, List[Tuple[str, str]]]:

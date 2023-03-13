@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import logging
-import sqlite3
+from sqlalchemy.engine import Engine
 from typing import Any, List, Tuple
 
 """
@@ -8,11 +8,11 @@ Abstract Base Class for an Analyzer
 """
 class Analyzer(ABC):
 
-    def __init__(self, con : sqlite3.Connection, db : Any, logger : logging.Logger) -> None:
+    def __init__(self, engine : Engine, db : Any, logger : logging.Logger) -> None:
         """
         Initialize the analyzer
         """
-        self.con: sqlite3.Connection = con
+        self.engine: Engine = engine
         self.db: Any = db
         self.logger: logging.Logger = logger
         self.results : None | List[ Tuple[str,str] ] = None
