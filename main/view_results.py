@@ -88,7 +88,7 @@ The table names used by OpenWPM:\n{PROTECTED_TABLE_NAMES}""")
     Neither : {len(neither)}
     """)
 
-    if (args.dump_source_code):
+    if args.dump_source_code:
         dump_source_code_path: Path = datadir_path.joinpath(f"temp-{datetime.datetime.now().replace(microsecond=0).isoformat()}")
         dump_source_code_path.mkdir()
         for id_lst, dir_path in [(both,dump_source_code_path.joinpath("both")),
