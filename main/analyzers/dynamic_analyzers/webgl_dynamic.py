@@ -4,7 +4,8 @@ from analyzers.dynamic_analyzer import Dynamic_Analyzer, parseArguments
 
 class WebGL_Dynamic(Dynamic_Analyzer):
     
-    def fingerprinting_type(self) -> str:
+    @staticmethod
+    def fingerprinting_type() -> str:
         return "WebGL"
     
     def _classify(self) -> bool:

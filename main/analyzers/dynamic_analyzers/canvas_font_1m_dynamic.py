@@ -4,7 +4,8 @@ from analyzers.dynamic_analyzer import Dynamic_Analyzer, parseArguments
 
 class Canvas_Font_1M_Dynamic(Dynamic_Analyzer):
     
-    def fingerprinting_type(self) -> str:
+    @staticmethod
+    def fingerprinting_type() -> str:
         return "Canvas Font"
     
     def _classify(self) -> bool:

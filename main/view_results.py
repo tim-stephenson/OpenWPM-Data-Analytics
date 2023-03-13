@@ -88,27 +88,27 @@ The table names used by OpenWPM:\n{PROTECTED_TABLE_NAMES}""")
     Neither : {len(neither)}
     """)
 
+    if (args.dump_source_code):
+        dump_source_code_path: Path = datadir_path.joinpath(f"temp-{datetime.datetime.now().replace(microsecond=0).isoformat()}")
+        dump_source_code_path.mkdir()
+        for id_lst, dir_path in [(both,dump_source_code_path.joinpath("both")),
+                            (just_1,dump_source_code_path.joinpath(analyses[0])),
+                                (just_2,dump_source_code_path.joinpath(analyses[1]))]:
+            dir_path.mkdir()
+            dump_from_identifier_list(id_lst,engine,db,dir_path)
 
-    dump_source_code_path: Path = datadir_path.joinpath(f"temp-{datetime.datetime.now().replace(microsecond=0).isoformat()}")
-    dump_source_code_path.mkdir()
-    for id_lst, dir_path in [(both,dump_source_code_path.joinpath("both")),
-                          (just_1,dump_source_code_path.joinpath(analyses[0])),
-                            (just_2,dump_source_code_path.joinpath(analyses[1]))]:
-        dir_path.mkdir()
-        dump_from_identifier_list(id_lst,engine,db,dir_path)
 
-
-    node_script_path: Path = Path(__file__).parent.parent.joinpath("node","run.sh").resolve()
-    process: subprocess.Popen[str] = subprocess.Popen( [
-        "bash","-i",str(node_script_path),"npm","run","prettier","--","--ignore-unknown","--no-config","--write",dump_source_code_path
-        ],text=True, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-    for line in iter(process.stdout.readline, b""): #type: ignore
-        if line == "":
-            if process.poll() != None:
-                break
-            time.sleep(1)
-        else:
-            logger.info(line)
+        node_script_path: Path = Path(__file__).parent.parent.joinpath("node","run.sh").resolve()
+        process: subprocess.Popen[str] = subprocess.Popen( [
+            "bash","-i",str(node_script_path),"npm","run","prettier","--","--ignore-unknown","--no-config","--write",dump_source_code_path
+            ],text=True, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        for line in iter(process.stdout.readline, b""): #type: ignore
+            if line == "":
+                if process.poll() != None:
+                    break
+                time.sleep(1)
+            else:
+                logger.info(line)
 
     
 

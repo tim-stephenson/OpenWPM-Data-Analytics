@@ -12,7 +12,8 @@ class Canvas_1M_Static(Static_Analyzer):
         self.__keywords : List[str] = [".toDataURL", ".getImageData", ".fillStyle", ".fillText"]
         super().__init__(engine,db,logger)
 
-    def fingerprinting_type(self) -> str:
+    @staticmethod
+    def fingerprinting_type() -> str:
         return "Canvas"
     
     def _analyze_one(self,source_code : str) -> bool:

@@ -11,7 +11,8 @@ class Canvas_Font_1M_Static(Static_Analyzer):
         self.__keywords : List[str] = [".measureText", ".font"]
         super().__init__(engine,db,logger)
 
-    def fingerprinting_type(self) -> str:
+    @staticmethod
+    def fingerprinting_type() -> str:
         return "Canvas Font"
     
     def _analyze_one(self,source_code : str) -> bool:

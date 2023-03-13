@@ -44,7 +44,8 @@ def dataframe_to_table(df : pandas.DataFrame,engine : Engine, table_name : str) 
 # Loads the fingerprinting analysis results from the analysis_results table into
 # a pandas dataframe
 def table_to_dataframe(engine : Engine, table_name : str) -> pandas.DataFrame:
-    return pandas.read_sql_table(table_name,engine,index_col=["visit_id","script_url"])
+    with engine.connect() as conn:
+        return pandas.read_sql_table(table_name,conn,index_col=["visit_id","script_url"])
 
 
 def analyzerObjects_to_dataframe(analyzer_objects : List[Analyzer]) -> pandas.DataFrame:
@@ -52,7 +53,7 @@ def analyzerObjects_to_dataframe(analyzer_objects : List[Analyzer]) -> pandas.Da
     for analyzer in analyzer_objects:
         domain.update(analyzer.analysis_domain())
     analysis_names : List[str] = [analyzer.analysis_name() for analyzer in analyzer_objects]
-    df: pandas.DataFrame = pandas.DataFrame(data=False,  index=pandas.MultiIndex.from_tuples(list(domain)), columns=analysis_names, dtype=bool) #type: ignore
+    df: pandas.DataFrame = pandas.DataFrame(data=False,  index=pandas.MultiIndex.from_tuples(list(domain),names=['visit_id', 'script_url']), columns=analysis_names, dtype=bool) #type: ignore
     for analyzer in analyzer_objects:
         for value in analyzer.get_analysis_results():
             df[analyzer.analysis_name()].loc[value] = True #type: ignore
@@ -65,3 +66,12 @@ def dataframe_to_analyzerObjects(analyzer_objects : List[Analyzer], df : pandas.
             if value:
                 lst.append(index) #type: ignore
         analyzer.set_analysis_results(lst)
+
+
+# merge dataframe new and previous, which have the same rows but potentially different columns
+# When a column is shared, the items in previous are discarded and the items in new are used
+def merge_dataframes(new : pandas.DataFrame, previous : pandas.DataFrame) -> pandas.DataFrame:
+    previous_filtered : pandas.DataFrame = previous.drop(columns=new.columns, errors='ignore')    
+    join : pandas.DataFrame =  new.merge(previous_filtered, how='outer',on=None,left_index=True,right_index=True,validate="one_to_one") #type: ignore
+    join.fillna(0, inplace=True) #type: ignore
+    return join

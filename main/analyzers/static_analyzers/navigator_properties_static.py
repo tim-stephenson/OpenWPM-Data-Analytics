@@ -13,7 +13,8 @@ class Navigator_Properties_Static(Static_Analyzer):
                                          ".hardwareConcurrency",".language",".maxTouchPoints"]
         super().__init__(engine,db,logger)
 
-    def fingerprinting_type(self) -> str:
+    @staticmethod
+    def fingerprinting_type() -> str:
         return "Navigator Properties"
     
     def _analyze_one(self,source_code : str) -> bool:
