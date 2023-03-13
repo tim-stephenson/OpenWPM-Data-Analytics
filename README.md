@@ -38,16 +38,15 @@ more than feasible.
 
 ## Running
 
-The two Python files a user would run are `main/run_analysis.py` and `main/view_results.py`. Both require the 
-current working directory to be inside the main directory before being executed.
+The two Python files a user would run are `main/run_analysis.py` and `main/view_results.py`.
 
 ### `main/run_analysis.py` 
 
 Intended to run all the analyses on the crawl data from OpenWPM, then store that data in new table in the SQL database. View 
-the CLI arguments for this by running `python run_analysis.py --help` (while in the `main/` directory).
+the CLI arguments for this by running `python run_analysis.py --help`.
 
 ### `main/view_results.py`
 
 Intended to be ran after running `main/run_analysis.py`, to view the results from the analysis. View 
-the CLI arguments for this by running `python view_results.py --help` (while in the `main/` directory).
+the CLI arguments for this by running `python view_results.py --help`.
 

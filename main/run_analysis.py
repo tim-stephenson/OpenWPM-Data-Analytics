@@ -32,7 +32,7 @@ if __name__ == '__main__':
     logger: logging.Logger = GenerateLogger(datadir_path.joinpath("analysis.log") )
     database_url : URL = URL.create(drivername = "sqlite", database = str(datadir_path.joinpath("crawl-data.sqlite")) )
     engine : Engine = create_engine(database_url)
-    db : Any = plyvel.DB( str(path.joinpath(args.leveldb)) ) # type: ignore
+    db : Any = plyvel.DB( str(datadir_path.joinpath(args.leveldb)) ) # type: ignore
 
     table_name : str = args.table_name
     if table_name in PROTECTED_TABLE_NAMES:

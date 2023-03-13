@@ -17,8 +17,8 @@ class Navigator_Properties_Dynamic(Dynamic_Analyzer):
         return "Navigator Properties"
     
     def _classify(self) -> bool:
-        if len(self.__found_properties_counts) > 0:
-            self.logger.info(f"Navigator Properties Counts:\n{dict(self.__found_properties_counts)}")
+        # if len(self.__found_properties_counts) > 0:
+        #     self.logger.info(f"Navigator Properties Counts:\n{dict(self.__found_properties_counts)}")
         return len(self.__found_properties_counts) >= len(self.__properties) - 2 
 
     def _reset(self) -> None :

@@ -28,6 +28,9 @@ if __name__ == '__main__':
         help="Table Name of the analysis results, default = 'analysis_results'", default="analysis_results")
     parser.add_argument('--leveldb', type=str, action='store',
         help='Name of LevelDB created by OpenWPM', default='leveldb')
+    parser.add_argument('--dump_source_code', action='store_true',
+        help="""create 3 folders for each venn diagram area, and dump the source code from the levelDB which 
+        corresponds with the (visit_id,script_url)""", default=False)
     parser.add_argument("analysis_name_1", type=str, action="store",
         help="Analysis Name to compare against")
     parser.add_argument("analysis_name_2", type=str, action="store",
@@ -39,7 +42,7 @@ if __name__ == '__main__':
     logger: logging.Logger = GenerateLogger(datadir_path.joinpath("view_results.log") )
     database_url : URL = URL.create(drivername = "sqlite", database = str(datadir_path.joinpath("crawl-data.sqlite")) )
     engine : Engine = create_engine(database_url)
-    db : Any = plyvel.DB( str(path.joinpath(args.leveldb)) ) # type: ignore
+    db : Any = plyvel.DB( str(datadir_path.joinpath(args.leveldb)) ) # type: ignore
 
     table_name : str = args.table_name
     analyses : Tuple[str,str] = (args.analysis_name_1,args.analysis_name_2)
@@ -79,10 +82,10 @@ The table names used by OpenWPM:\n{PROTECTED_TABLE_NAMES}""")
 
 
     logger.info(f"""
-    {len(both)}
-    {len(just_1)}
-    {len(just_2)}
-    {len(neither)}
+    Both : {len(both)}
+    Just {analyses[0]} : {len(just_1)}
+    Just {analyses[1]} :{len(just_2)}
+    Neither : {len(neither)}
     """)
 
 
@@ -95,8 +98,9 @@ The table names used by OpenWPM:\n{PROTECTED_TABLE_NAMES}""")
         dump_from_identifier_list(id_lst,engine,db,dir_path)
 
 
+    node_script_path: Path = Path(__file__).parent.parent.joinpath("node","run.sh").resolve()
     process: subprocess.Popen[str] = subprocess.Popen( [
-        "bash","-i","../node/run.sh","npm","run","prettier","--","--ignore-unknown","--no-config","--write",dump_source_code_path
+        "bash","-i",str(node_script_path),"npm","run","prettier","--","--ignore-unknown","--no-config","--write",dump_source_code_path
         ],text=True, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     for line in iter(process.stdout.readline, b""): #type: ignore
         if line == "":
@@ -106,6 +110,7 @@ The table names used by OpenWPM:\n{PROTECTED_TABLE_NAMES}""")
         else:
             logger.info(line)
 
+    
 
 
 
