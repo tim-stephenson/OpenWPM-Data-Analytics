@@ -1,5 +1,5 @@
 import logging
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, URL
 from sqlalchemy.engine import Engine
 from typing import List, Any
 import plyvel #type: ignore
@@ -28,9 +28,10 @@ if __name__ == '__main__':
         help="Table Name to store the analysis results, default = 'analysis_results'", default="analysis_results")
     args: argparse.Namespace = parser.parse_args()
 
-    path : Path = Path(args.path).resolve(strict=True)
-    logger: logging.Logger = GenerateLogger(path.joinpath("analysis.log") )
-    engine : Engine = create_engine(f"""sqlite:///{path.joinpath("crawl-data.sqlite")}""")
+    datadir_path : Path = Path(args.path).resolve(strict=True)
+    logger: logging.Logger = GenerateLogger(datadir_path.joinpath("analysis.log") )
+    database_url : URL = URL.create(drivername = "sqlite", database = str(datadir_path.joinpath("crawl-data.sqlite")) )
+    engine : Engine = create_engine(database_url)
     db : Any = plyvel.DB( str(path.joinpath(args.leveldb)) ) # type: ignore
 
     table_name : str = args.table_name
@@ -40,8 +41,8 @@ Your table name: {table_name}
 The table names used by OpenWPM:\n{PROTECTED_TABLE_NAMES}""")
         sys.exit(1)
 
-    n,f = runHealth(engine)
-    logger.info(f"total visits: {n}, failed/incomplete visits: {f}. Success percentage: {round(100* (1 - f/n)) }%")
+    n,s = runHealth(engine)
+    logger.info(f"total visits: {n}, 'functional' visits: {s}. Success percentage: {round(100* (s/n)) }%")
 
     if args.analyzers == "":
         analyzer_objects: List[Analyzer] = all_analyzers(engine,db,logger)

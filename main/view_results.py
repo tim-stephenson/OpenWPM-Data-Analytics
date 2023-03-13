@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Tuple
 import plyvel #type: ignore
 from sqlalchemy.engine import Engine
 from sqlalchemy.sql import Select
-from sqlalchemy import  Table, MetaData, select, create_engine
+from sqlalchemy import  Table, MetaData, select, create_engine, URL
 from utils.dump_source_code import dump_from_identifier_list
 from utils.utils import GenerateLogger
 import datetime
@@ -35,11 +35,12 @@ if __name__ == '__main__':
     
     args: argparse.Namespace = parser.parse_args()
 
+    datadir_path : Path = Path(args.path).resolve(strict=True)
+    logger: logging.Logger = GenerateLogger(datadir_path.joinpath("view_results.log") )
+    database_url : URL = URL.create(drivername = "sqlite", database = str(datadir_path.joinpath("crawl-data.sqlite")) )
+    engine : Engine = create_engine(database_url)
+    db : Any = plyvel.DB( str(path.joinpath(args.leveldb)) ) # type: ignore
 
-    path : Path = Path(args.path).resolve(strict=True)
-    logger: logging.Logger = GenerateLogger(path.joinpath("view_results.log") )
-    engine : Engine = create_engine(f"""sqlite:///{path.joinpath("crawl-data.sqlite")}""")
-    db : Any = plyvel.DB( str(path.joinpath(args.leveldb)) ) #type: ignore
     table_name : str = args.table_name
     analyses : Tuple[str,str] = (args.analysis_name_1,args.analysis_name_2)
 
@@ -85,7 +86,7 @@ The table names used by OpenWPM:\n{PROTECTED_TABLE_NAMES}""")
     """)
 
 
-    dump_source_code_path: Path = path.joinpath(f"temp-{datetime.datetime.now().replace(microsecond=0).isoformat()}")
+    dump_source_code_path: Path = datadir_path.joinpath(f"temp-{datetime.datetime.now().replace(microsecond=0).isoformat()}")
     dump_source_code_path.mkdir()
     for id_lst, dir_path in [(both,dump_source_code_path.joinpath("both")),
                           (just_1,dump_source_code_path.joinpath(analyses[0])),
