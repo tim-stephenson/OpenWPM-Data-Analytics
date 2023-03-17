@@ -3,6 +3,7 @@ from sqlalchemy import MetaData
 from typing import FrozenSet, List, Set, Tuple, Final
 import pandas
 from analyzers.analyzer import Analyzer
+import numpy
 
 
 PROTECTED_TABLE_NAMES : Final[FrozenSet[str]] = frozenset([
@@ -53,10 +54,12 @@ def analyzerObjects_to_dataframe(analyzer_objects : List[Analyzer]) -> pandas.Da
     for analyzer in analyzer_objects:
         domain.update(analyzer.analysis_domain())
     analysis_names : List[str] = [analyzer.analysis_name() for analyzer in analyzer_objects]
-    df: pandas.DataFrame = pandas.DataFrame(data=False,  index=pandas.MultiIndex.from_tuples(list(domain),names=['visit_id', 'script_url']), columns=analysis_names, dtype=bool) #type: ignore
+    df: pandas.DataFrame = pandas.DataFrame(data=numpy.nan, index=pandas.MultiIndex.from_tuples(list(domain),names=['visit_id', 'script_url']), columns=analysis_names, dtype=float) #type: ignore
     for analyzer in analyzer_objects:
+        for value in analyzer.analysis_domain():
+            df[analyzer.analysis_name()].loc[value] = 0 #type: ignore
         for value in analyzer.get_analysis_results():
-            df[analyzer.analysis_name()].loc[value] = True #type: ignore
+            df[analyzer.analysis_name()].loc[value] = 1 #type: ignore
     return df
 
 def dataframe_to_analyzerObjects(analyzer_objects : List[Analyzer], df : pandas.DataFrame) -> None:
@@ -73,5 +76,4 @@ def dataframe_to_analyzerObjects(analyzer_objects : List[Analyzer], df : pandas.
 def merge_dataframes(new : pandas.DataFrame, previous : pandas.DataFrame) -> pandas.DataFrame:
     previous_filtered : pandas.DataFrame = previous.drop(columns=new.columns, errors='ignore')    
     join : pandas.DataFrame =  new.merge(previous_filtered, how='outer',on=None,left_index=True,right_index=True,validate="one_to_one") #type: ignore
-    join.fillna(0, inplace=True) #type: ignore
     return join
