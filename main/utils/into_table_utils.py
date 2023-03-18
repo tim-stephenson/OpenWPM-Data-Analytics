@@ -57,9 +57,9 @@ def analyzerObjects_to_dataframe(analyzer_objects : List[Analyzer]) -> pandas.Da
     df: pandas.DataFrame = pandas.DataFrame(data=numpy.nan, index=pandas.MultiIndex.from_tuples(list(domain),names=['visit_id', 'script_url']), columns=analysis_names, dtype=float) #type: ignore
     for analyzer in analyzer_objects:
         for value in analyzer.analysis_domain():
-            df[analyzer.analysis_name()].loc[value] = 0 #type: ignore
+            df.at[value, analyzer.analysis_name()] = 0 #type: ignore
         for value in analyzer.get_analysis_results():
-            df[analyzer.analysis_name()].loc[value] = 1 #type: ignore
+            df.at[value, analyzer.analysis_name()] = 1 #type: ignore
     return df
 
 def dataframe_to_analyzerObjects(analyzer_objects : List[Analyzer], df : pandas.DataFrame) -> None:
