@@ -70,9 +70,10 @@ The table names used by OpenWPM:\n{PROTECTED_TABLE_NAMES}""")
         dump_source_code_path: Path = datadir_path.joinpath(f"temp-{datetime.datetime.now().replace(microsecond=0).isoformat()}")
         dump_source_code_path.mkdir()
         for bucket, value in buckets:
-            dir_path: Path = dump_source_code_path.joinpath(str(bucket))
-            dir_path.mkdir()
-            dump_from_identifier_list(value,engine,db,dir_path)
+            if any( bucket.values() ):
+                dir_path: Path = dump_source_code_path.joinpath(str(bucket))
+                dir_path.mkdir()
+                dump_from_identifier_list(value,engine,db,dir_path)
 
 
         node_script_path: Path = Path(__file__).parent.parent.joinpath("node","run.sh").resolve()
