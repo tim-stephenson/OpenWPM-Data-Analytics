@@ -28,10 +28,8 @@ if __name__ == '__main__':
     parser.add_argument('--dump_source_code', action='store_true',
         help="""create 3 folders for each venn diagram area, and dump the source code from the levelDB which 
         corresponds with the (visit_id,script_url)""", default=False)
-    parser.add_argument("analysis_name_1", type=str, action="store",
-        help="Analysis Name to compare against")
-    parser.add_argument("analysis_name_2", type=str, action="store",
-        help="Analysis Name to compare against")
+    parser.add_argument("analyzers_names", nargs="+",
+        help="List of analyzers_names to compare. At least one must provided.")
     
     args: argparse.Namespace = parser.parse_args()
 
@@ -42,7 +40,7 @@ if __name__ == '__main__':
     db : Any = plyvel.DB( str(datadir_path.joinpath(args.leveldb)) ) # type: ignore
 
     table_name : str = args.table_name
-    analyses : Tuple[str,str] = (args.analysis_name_1,args.analysis_name_2)
+    analyses : List[str] = args.analyzers_names
 
     if table_name in PROTECTED_TABLE_NAMES:
         logger.error(f"""Cannot use a table name used by the OpenWPM output data.
