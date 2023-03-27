@@ -11,6 +11,7 @@ from utils.dump_source_code import dump_from_identifier_list
 from utils.utils import GenerateLogger
 import datetime
 import subprocess
+import json
 
 from utils.into_table_utils import column_exists, table_exists, PROTECTED_TABLE_NAMES
 from utils.gather_buckets import gather_buckets
@@ -61,7 +62,7 @@ The table names used by OpenWPM:\n{PROTECTED_TABLE_NAMES}""")
         
 
     for bucket, value in buckets:
-        logger.info(f""" {bucket}     :    {len(value)} """)
+        logger.info(f""" {json.dumps(bucket, separators=(',', ':'))}     :    {len(value)} """)
 
 
     if args.dump_source_code:
@@ -69,7 +70,7 @@ The table names used by OpenWPM:\n{PROTECTED_TABLE_NAMES}""")
         dump_source_code_path.mkdir()
         for bucket, value in buckets:
             if any( bucket.values() ):
-                dir_path: Path = dump_source_code_path.joinpath(str(bucket))
+                dir_path: Path = dump_source_code_path.joinpath(json.dumps(bucket, separators=(',', ':')))
                 dir_path.mkdir()
                 dump_from_identifier_list(value,engine,db,dir_path)
 
