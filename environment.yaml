@@ -17,4 +17,5 @@ dependencies:
   - pip :
     # Package that is only on PyPI (or need PyPI version)
     - ipython-sql >=0.5.0
+    - jsbeautifier >=1.14.7
   

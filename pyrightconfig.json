@@ -4,5 +4,6 @@
     "useLibraryCodeForTypes" : true,
     "typeCheckingMode" : "strict",
     "pythonVersion": "3.11",
-    "pythonPlatform": "Linux"
+    "pythonPlatform": "Linux",
+    "ignore": ["main/analyzers/__init__.py"]
 }
