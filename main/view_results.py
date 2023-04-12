@@ -11,6 +11,7 @@ from utils.dump_source_code import dump_from_identifier_list
 from utils.utils import GenerateLogger
 import datetime
 import subprocess
+import json
 
 from utils.into_table_utils import column_exists, table_exists, PROTECTED_TABLE_NAMES
 from utils.gather_buckets import gather_buckets
@@ -28,10 +29,8 @@ if __name__ == '__main__':
     parser.add_argument('--dump_source_code', action='store_true',
         help="""create 3 folders for each venn diagram area, and dump the source code from the levelDB which 
         corresponds with the (visit_id,script_url)""", default=False)
-    parser.add_argument("analysis_name_1", type=str, action="store",
-        help="Analysis Name to compare against")
-    parser.add_argument("analysis_name_2", type=str, action="store",
-        help="Analysis Name to compare against")
+    parser.add_argument("analyzers_names", nargs="+",
+        help="List of analyzers_names to compare. At least one must provided.")
     
     args: argparse.Namespace = parser.parse_args()
 
@@ -42,7 +41,7 @@ if __name__ == '__main__':
     db : Any = plyvel.DB( str(datadir_path.joinpath(args.leveldb)) ) # type: ignore
 
     table_name : str = args.table_name
-    analyses : Tuple[str,str] = (args.analysis_name_1,args.analysis_name_2)
+    analyses : List[str] = args.analyzers_names
 
     if table_name in PROTECTED_TABLE_NAMES:
         logger.error(f"""Cannot use a table name used by the OpenWPM output data.
@@ -63,16 +62,17 @@ The table names used by OpenWPM:\n{PROTECTED_TABLE_NAMES}""")
         
 
     for bucket, value in buckets:
-        logger.info(f""" {bucket}     :    {len(value)} """)
+        logger.info(f""" {json.dumps(bucket, separators=(',', ':'))}     :    {len(value)} """)
 
 
     if args.dump_source_code:
         dump_source_code_path: Path = datadir_path.joinpath(f"temp-{datetime.datetime.now().replace(microsecond=0).isoformat()}")
         dump_source_code_path.mkdir()
         for bucket, value in buckets:
-            dir_path: Path = dump_source_code_path.joinpath(str(bucket))
-            dir_path.mkdir()
-            dump_from_identifier_list(value,engine,db,dir_path)
+            if any( bucket.values() ):
+                dir_path: Path = dump_source_code_path.joinpath(json.dumps(bucket, separators=(',', ':')))
+                dir_path.mkdir()
+                dump_from_identifier_list(value,engine,db,dir_path)
 
 
         node_script_path: Path = Path(__file__).parent.parent.joinpath("node","run.sh").resolve()
