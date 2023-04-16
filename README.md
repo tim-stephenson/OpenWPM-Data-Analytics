@@ -30,7 +30,7 @@ Requirements:
   - micromamba can be
     installed via [their installation instructions](https://mamba.readthedocs.io/en/latest/installation.html), or
     running `bash -i scripts/micromamba-install.sh`
-- Some other conda environment manager (conda, miniconda, mamba) may be used. Our bash scripts are under the `script/`
+  - Some other conda environment manager (conda, miniconda, mamba) may be used. Our bash scripts are under the `script/`
 directory are all set up around micromamba. However, they are quite simple scripts, so preforming these actions yourself is
 more than feasible.
 - Install the virtual environment
@@ -38,15 +38,17 @@ more than feasible.
 
 ## Running
 
+Enable the virtual enviroment via `micromamba activate openwpmdata`
+
 The two Python files a user would run are `main/run_analysis.py` and `main/view_results.py`.
 
 ### `main/run_analysis.py` 
 
 Intended to run all the analyses on the crawl data from OpenWPM, then store that data in new table in the SQL database. View 
-the CLI arguments for this by running `python run_analysis.py --help`.
+the CLI arguments for this by running `python main/run_analysis.py --help`.
 
 ### `main/view_results.py`
 
 Intended to be ran after running `main/run_analysis.py`, to view the results from the analysis. View 
-the CLI arguments for this by running `python view_results.py --help`.
+the CLI arguments for this by running `python main/view_results.py --help`.
 
