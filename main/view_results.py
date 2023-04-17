@@ -27,8 +27,8 @@ if __name__ == '__main__':
     parser.add_argument('--leveldb', type=str, action='store',
         help='Name of LevelDB created by OpenWPM', default='leveldb')
     parser.add_argument('--dump_source_code', action='store_true',
-        help="""create 3 folders for each venn diagram area, and dump the source code from the levelDB which 
-        corresponds with the (visit_id,script_url)""", default=False)
+        help="""create folders with the source code (prettified) for each portion of the venn diagram between the analyzers' results,
+        so long at least one of the analyzers classified the (visit_id,script_url) pair as preforming fingerprinting""", default=False)
     parser.add_argument("analyzers_names", nargs="+",
         help="List of analyzers_names to compare. At least one must provided.")
     
