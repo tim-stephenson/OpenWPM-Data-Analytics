@@ -9,7 +9,6 @@ if [ -z "$PS1" ]; then
     exit 1
 fi
 
-source ~/.bashrc
 micromamba create -f environment.yaml
 
 eval "$(micromamba shell hook --shell=bash)"

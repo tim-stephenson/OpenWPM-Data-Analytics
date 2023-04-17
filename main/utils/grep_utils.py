@@ -10,11 +10,6 @@ def grepForKeywords(keywords : List[str],  s : str) -> Set[str]:
             results.add(keyword)
     return results
 
-# def compile_regex_from_keywords(keywords : List[str]) -> re.Pattern[str]:
-#     pattern: str = "|".join(map(lambda keyword : "(" + re.escape(keyword) + ")", keywords))
-#     return re.compile(pattern)
-
-
 # un-escape characters escaped via any of the three methods:
 # \xXX                                                       i.e.    \x4E = N          \x21 = !
 # \uXXXX                                                     i.e.    \u265A = ♚        \u269B = ⚛

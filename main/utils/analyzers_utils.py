@@ -1,9 +1,8 @@
 import importlib
-import itertools
 import logging
 from sqlalchemy.engine import Engine
 from types import ModuleType
-from typing import Any, Dict, List, Set, Tuple, Type
+from typing import Any, Dict, List, Tuple, Type
 from analyzers.analyzer import Analyzer
 import analyzers
 
@@ -68,38 +67,6 @@ def analyzers_from_class_names(class_names : List[str], engine : Engine, db : An
 def run_analyzers(analyzer_objects : List[Analyzer]) -> None:
     for analyzer  in analyzer_objects:
         analyzer.run_analysis()
-
-def get_all_symmetric_differences(analyzer_objects : List[Analyzer], logger : logging.Logger) -> None:
-    grouped_by_fingerprinting_type : Dict[str, List[Analyzer]] = dict()
-    for analyzer in analyzer_objects:
-        if analyzer.fingerprinting_type() in grouped_by_fingerprinting_type:
-            grouped_by_fingerprinting_type[analyzer.fingerprinting_type()].append(analyzer)
-        else:
-            grouped_by_fingerprinting_type[analyzer.fingerprinting_type()] = [analyzer]
-    for analyzer_subgroup in grouped_by_fingerprinting_type.values():
-        for (analyzer1, analyzer2) in  itertools.combinations(analyzer_subgroup, 2):
-            compare(analyzer1,analyzer2,logger)
-
-def compare(analyzer1 : Analyzer, analyzer2 : Analyzer , logger : logging.Logger) -> None:
-        intersection_classified : Set[Tuple[str,str]] = set(analyzer1.get_analysis_results()).intersection( analyzer2.get_analysis_results() )
-        intersection_domain : Set[Tuple[str,str]] = set(analyzer1.analysis_domain()).intersection( analyzer2.analysis_domain() ) 
-        
-        logger.info(f"""
-        Fingerprinting method: {analyzer1.fingerprinting_type()}, 
-        classified by {analyzer1.analysis_name()} : {len(analyzer1.get_analysis_results())} / {analyzer1.analysis_domain_size()}
-        classified by {analyzer2.analysis_name()} : {len(analyzer2.get_analysis_results())} / {analyzer2.analysis_domain_size()}
-        intersection : {len(intersection_classified)} / {len(intersection_domain)}
-        """)
-
-
-def load_cache(analyzer_objects : List[Analyzer], cached_results : Dict[str, List[Tuple[str, str]]]) -> None:
-    for analyzer in analyzer_objects:
-        if analyzer.analysis_name() in cached_results:
-            analyzer.set_analysis_results(cached_results[analyzer.analysis_name()])
-
-
-def store_to_cache(analyzer_objects : List[Analyzer]) -> Dict[str, List[Tuple[str, str]]]:
-    return {analyzer.analysis_name() : analyzer.get_analysis_results() for analyzer in analyzer_objects }
 
 
 

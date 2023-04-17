@@ -62,14 +62,6 @@ def analyzerObjects_to_dataframe(analyzer_objects : List[Analyzer]) -> pandas.Da
             df.at[value, analyzer.analysis_name()] = 1 #type: ignore
     return df
 
-def dataframe_to_analyzerObjects(analyzer_objects : List[Analyzer], df : pandas.DataFrame) -> None:
-    for analyzer in analyzer_objects:
-        lst : List[Tuple[str,str]] = []
-        for index, value in df[analyzer.analysis_name()].items(): #type: ignore
-            if value:
-                lst.append(index) #type: ignore
-        analyzer.set_analysis_results(lst)
-
 
 # merge dataframe new and previous, which have the same rows but potentially different columns
 # When a column is shared, the items in previous are discarded and the items in new are used
