@@ -7,8 +7,8 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name : micromamba install
-        run : bash -i scripts/micromamba-install.sh
+        run : bash scripts/micromamba-install.sh
       - name : install environment
-        run: bash -i scripts/install.sh
+        run: bash scripts/install.sh
       - name : pyright Typecheck
-        run : bash -i scripts/pyright-run.sh
+        run : bash scripts/pyright-run.sh
