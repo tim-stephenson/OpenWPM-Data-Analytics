@@ -12,17 +12,21 @@ Abstract Base Class for all dynamic analyzers
 See parent class 'Analyzer' for method descriptions
 """
 class Dynamic_Analyzer(Analyzer):
+
+    def _strip_params(self, domain_id) -> Tuple[str, str]:
+        return (domain_id[0], domain_id[1].partition('?')[0])
     
     def analysis_domain_size(self) -> int:
-        with self.engine.connect() as conn:
-            query_response: CursorResult[Tuple[int]] = conn.execute(text("""
-                SELECT COUNT(*)
-                FROM (
-                    SELECT DISTINCT visit_id,script_url
-                    FROM JAVASCRIPT
-                )
-            """))
-        return query_response.__next__().tuple()[0]
+        #  with self.engine.connect() as conn:
+        #      query_response: CursorResult[Tuple[int]] = conn.execute(text("""
+        #          SELECT COUNT(*)
+        #          FROM (
+        #              SELECT DISTINCT visit_id,script_url
+        #              FROM JAVASCRIPT
+        #          )
+        #      """))
+        #  return query_response.__next__().tuple()[0]
+        return len(self.analysis_domain())
 
     def analysis_domain(self) ->  List[ Tuple[str,str] ]:
         with self.engine.connect() as conn:
@@ -30,7 +34,9 @@ class Dynamic_Analyzer(Analyzer):
                 SELECT DISTINCT visit_id,script_url
                 FROM JAVASCRIPT
             """))
-        return [ tuple(row) for row in query_response.fetchall()]
+        return [ self._strip_params(tuple(row)) 
+                for row in query_response.fetchall()]
+
 
     def _analyze(self) -> List[ Tuple[str,str] ]:
         self._reset()
@@ -44,18 +50,27 @@ class Dynamic_Analyzer(Analyzer):
         previous : Union[ Tuple[str,str], None]  = None
         for row in query_response.mappings():
             id: Tuple[str, str]  = (row["visit_id"], row["script_url"] )
+
             if(previous == None):
                 previous = id
             elif( previous != id ):
                 if self._classify():
                     self.logger.info(f"{previous} \n\tUsing: {self.fingerprinting_type()} \n\tVia: {self.analysis_name()}")
-                    results.append(previous)
+                    if self._strip_params(previous) in results:
+                        self.logger.warn(
+                            f"Already recorded: {self._strip_params(previous)}"
+                        )
+                    results.append(self._strip_params(previous))
                 self._reset()
                 previous = id
             self._read_row(row)
         if previous != None and self._classify():
             self.logger.info(f"{previous} \n\tUsing: {self.fingerprinting_type()} \n\tVia: {self.analysis_name()}")
-            results.append(previous)
+            if self._strip_params(previous) in results:
+                self.logger.warn(
+                    f"Already recorded: {self._strip_params(previous)}"
+                )
+            results.append(self._strip_params(previous))
         self._reset()
         return results
     
