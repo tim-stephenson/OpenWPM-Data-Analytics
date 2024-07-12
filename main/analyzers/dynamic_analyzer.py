@@ -13,7 +13,7 @@ See parent class 'Analyzer' for method descriptions
 """
 class Dynamic_Analyzer(Analyzer):
 
-    def _strip_params(self, domain_id) -> Tuple[str, str]:
+    def _strip_params(self, domain_id : Tuple[str, str]) -> Tuple[str, str]:
         return (domain_id[0], domain_id[1].partition('?')[0])
     
     def analysis_domain_size(self) -> int:
