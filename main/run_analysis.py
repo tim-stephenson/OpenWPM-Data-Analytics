@@ -21,7 +21,7 @@ if __name__ == '__main__':
     parser.add_argument("path", type=str , action="store",
         help="path of datadir directory")
     parser.add_argument('--leveldb', type=str, action='store',
-        help='Name of LevelDB created by OpenWPM', default='leveldb')
+        help='Name of LevelDB created by OpenWPM', default=None)
     parser.add_argument('--analyzers', type=str, action='store',
         help='Comma-separated list of names of analyzer classes to use', default="")
     
@@ -36,7 +36,9 @@ if __name__ == '__main__':
     logger: logging.Logger = GenerateLogger(datadir_path.joinpath("analysis.log") )
     database_url : URL = URL.create(drivername = "sqlite", database = str(datadir_path.joinpath("crawl-data.sqlite")) )
     engine : Engine = create_engine(database_url)
-    db : Any = plyvel.DB( str(datadir_path.joinpath(args.leveldb)) ) # type: ignore
+    db : Any = plyvel.DB( str(datadir_path.joinpath(args.leveldb)) ) \
+            if args.leveldb is not None \
+            else None # type: ignore
 
     table_name : str = args.table_name
     if table_name in PROTECTED_TABLE_NAMES:
